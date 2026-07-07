@@ -1,0 +1,1980 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#F3F8F6}
+body{font-family:'Lato','Segoe UI',system-ui,sans-serif;color:#162E27;-webkit-font-smoothing:antialiased}
+button{font-family:'Poppins','Segoe UI',system-ui,sans-serif;cursor:pointer}
+select,input,textarea{font-family:'Lato',system-ui,sans-serif;color:#162E27}
+@keyframes efgspin{to{transform:rotate(360deg)}}
+@keyframes efgup{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+@media (max-width:960px){.efg-side{display:none !important}.efg-mnav{display:flex !important}.efg-topbar{flex-wrap:wrap;height:auto !important;padding:10px 14px !important;gap:8px !important}.efg-grid5{grid-template-columns:repeat(2,1fr) !important}.efg-2col{flex-direction:column !important;align-items:stretch !important}.efg-board{grid-template-columns:1fr 1fr !important}.efg-hero{flex-direction:column !important}}
+@media (max-width:560px){.efg-grid5{grid-template-columns:1fr !important}.efg-board{grid-template-columns:1fr !important}.efg-3col{grid-template-columns:1fr !important}}
+@media print{.np{display:none !important}.efg-side{display:none !important}body{background:#fff}.efg-main{padding:0 !important}.efg-card{box-shadow:none !important}}
+</style>
+</helmet>
+
+<sc-if value="{{loading}}" hint-placeholder-val="{{ true }}">
+  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#162E27">
+    <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:26px;color:#fff">EFG<span style="color:#D0E8E2">.</span> <span style="font-weight:500;color:#D0E8E2">Consulting</span></div>
+    <div style="width:26px;height:26px;border-radius:50%;border:3px solid #2E6B5A;border-top-color:#D0E8E2;animation:efgspin .8s linear infinite"></div>
+    <div style="color:#D0E8E2;font-size:14px">Preparing your report</div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ready}}" hint-placeholder-val="{{ false }}">
+<div style="min-height:100vh;display:flex;flex-direction:column">
+
+  <!-- ================= TOP BAR ================= -->
+  <div class="efg-topbar np" style="height:62px;display:flex;align-items:center;gap:14px;padding:0 20px;background:#fff;border-bottom:1px solid #D0E8E2;position:sticky;top:0;z-index:50">
+    <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:18px;color:#162E27;white-space:nowrap">EFG<span style="color:#2E6B5A">.</span> <span style="font-weight:500;color:#4A6B62">Consulting</span></div>
+    <sc-if value="{{isInternal}}" hint-placeholder-val="{{ false }}">
+      <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:11px;letter-spacing:.04em;padding:3px 10px;border-radius:999px;background:#E6F3F0;color:#1E4D40;border:1px solid #D0E8E2">Internal</span>
+    </sc-if>
+    <div style="width:1px;height:26px;background:#D0E8E2"></div>
+    <sc-if value="{{isInternal}}" hint-placeholder-val="{{ false }}">
+      <select value="{{clientId}}" onChange="{{setClient}}" style="font-size:13.5px;font-weight:700;padding:7px 10px;border-radius:10px;border:1px solid #D0E8E2;background:#fff;max-width:200px">
+        <sc-for list="{{clientOptions}}" as="c" hint-placeholder-count="3"><option value="{{c.id}}">{{c.name}}</option></sc-for>
+      </select>
+    </sc-if>
+    <sc-if value="{{isClientRole}}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;gap:9px">
+        <sc-if value="{{hasLogo}}" hint-placeholder-val="{{ false }}">
+          {{logoImgTopbar}}
+        </sc-if>
+        <sc-if value="{{noLogo}}" hint-placeholder-val="{{ true }}">
+          <div style="width:30px;height:30px;border-radius:9px;background:{{clientColour}};color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:600;font-size:12px">{{clientInitials}}</div>
+          <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14.5px">{{clientName}}</span>
+        </sc-if>
+      </div>
+    </sc-if>
+    <select value="{{monthKey}}" onChange="{{setMonth}}" style="font-size:13px;padding:7px 10px;border-radius:10px;border:1px solid #D0E8E2;background:#fff">
+      <sc-for list="{{monthOptions}}" as="m" hint-placeholder-count="2"><option value="{{m.key}}">{{m.text}}</option></sc-for>
+    </select>
+    <span style="font-size:12px;color:#4A6B62;white-space:nowrap">Updated {{updated}}</span>
+    <div style="flex:1"></div>
+    <sc-if value="{{isInternal}}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{openUpload}}" style="font-size:12.5px;font-weight:600;padding:8px 13px;border-radius:10px;border:1px solid #D0E8E2;background:#fff;color:#1E4D40">Add report</button>
+    </sc-if>
+    <button onClick="{{exportPdf}}" style="font-size:12.5px;font-weight:600;padding:8px 13px;border-radius:10px;border:1px solid #D0E8E2;background:#fff;color:#1E4D40">Export PDF</button>
+    <sc-if value="{{isInternal}}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{goAdmin}}" style="{{adminBtnStyle}}">Admin</button>
+      <button onClick="{{viewAsClient}}" style="font-size:12.5px;font-weight:600;padding:8px 13px;border-radius:10px;border:1px solid #1E4D40;background:#fff;color:#1E4D40">View as client</button>
+    </sc-if>
+    <sc-if value="{{isClientRole}}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{backToInternal}}" style="font-size:12.5px;font-weight:600;padding:8px 13px;border-radius:10px;border:1px dashed #4A6B62;background:#E6F3F0;color:#1E4D40">Back to internal view</button>
+    </sc-if>
+  </div>
+
+  <!-- Draft banner (internal only) -->
+  <sc-if value="{{showDraftBanner}}" hint-placeholder-val="{{ false }}">
+    <div class="np" style="display:flex;align-items:center;gap:12px;padding:9px 20px;background:#162E27;color:#D0E8E2;font-size:13px">
+      <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:11px;letter-spacing:.04em;padding:2px 9px;border-radius:999px;border:1px solid #4A6B62">{{reportStatus}}</span>
+      <span>This {{monthLabel}} report is not published yet. Clients still see the last published month.</span>
+      <button onClick="{{goDesk}}" style="margin-left:auto;font-size:12px;font-weight:600;padding:5px 11px;border-radius:8px;border:1px solid #4A6B62;background:transparent;color:#fff">Open review desk</button>
+    </div>
+  </sc-if>
+
+  <div style="display:flex;flex:1;align-items:stretch">
+
+    <!-- ================= SIDEBAR ================= -->
+    <sc-if value="{{notAdmin}}" hint-placeholder-val="{{ true }}">
+      <div class="efg-side np" style="width:210px;flex:none;background:#162E27;display:flex;flex-direction:column;padding:18px 12px;gap:4px">
+        <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:10.5px;letter-spacing:.1em;color:#4A6B62;padding:0 10px 8px;text-transform:uppercase">Your report</div>
+        <sc-for list="{{navItems}}" as="n" hint-placeholder-count="6">
+          <div onClick="{{n.go}}" style="{{n.style}}">{{n.label}}</div>
+        </sc-for>
+        <div style="flex:1"></div>
+        <div style="background:#1E4D40;border-radius:12px;padding:13px;display:flex;flex-direction:column;gap:6px">
+          <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:12.5px;color:#fff">Your EFG contact</div>
+          <div style="font-size:12.5px;color:#D0E8E2">{{managerName}}</div>
+          <a href="mailto:contact@efgconsulting.com.au" style="text-decoration:none;text-align:center;font-family:'Poppins',sans-serif;font-weight:600;font-size:12px;padding:7px 0;border-radius:8px;background:#fff;color:#1E4D40;margin-top:4px">Send a message</a>
+        </div>
+        <div style="font-size:10.5px;color:#4A6B62;padding:12px 10px 0">The team behind your team</div>
+      </div>
+    </sc-if>
+
+    <!-- ================= MAIN ================= -->
+    <div class="efg-main" style="flex:1;min-width:0;padding:26px 30px 60px;display:flex;flex-direction:column;gap:18px;max-width:1220px;margin:0 auto;box-sizing:border-box;width:100%">
+
+      <!-- mobile nav -->
+      <sc-if value="{{notAdmin}}" hint-placeholder-val="{{ false }}">
+        <div class="efg-mnav np" style="display:none;gap:6px;flex-wrap:wrap">
+          <sc-for list="{{navItems}}" as="n" hint-placeholder-count="6">
+            <button onClick="{{n.go}}" style="{{n.mStyle}}">{{n.label}}</button>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <!-- ============ OVERVIEW ============ -->
+      <sc-if value="{{vOverview}}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="Overview" style="display:flex;flex-direction:column;gap:18px">
+
+          <!-- client header -->
+          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+            <sc-if value="{{hasLogo}}" hint-placeholder-val="{{ false }}">
+              <div style="background:#fff;border:1px solid #D0E8E2;border-radius:13px;padding:10px 16px;display:flex;align-items:center">
+                {{logoImgHeader}}
+              </div>
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <div style="font-size:13px;color:#4A6B62">{{clientMeta}}</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{noLogo}}" hint-placeholder-val="{{ true }}">
+              <div style="width:46px;height:46px;border-radius:13px;background:{{clientColour}};color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:600;font-size:17px">{{clientInitials}}</div>
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:21px;line-height:1.15">{{clientName}}</div>
+                <div style="font-size:13px;color:#4A6B62">{{clientMeta}}</div>
+              </div>
+            </sc-if>
+            <div style="flex:1"></div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span style="{{healthChipStyle}}">{{healthLabel}}</span>
+              <span style="{{statusChipStyle}}">{{reportStatus}}</span>
+            </div>
+          </div>
+
+          <!-- hero briefing -->
+          <div class="efg-hero" style="background:#1E4D40;border-radius:18px;padding:24px 26px;display:flex;gap:24px;box-shadow:0 6px 18px rgba(22,46,39,.14)">
+            <div style="flex:1.5;display:flex;flex-direction:column;gap:12px;min-width:0">
+              <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:11px;letter-spacing:.12em;color:#D0E8E2;text-transform:uppercase">{{monthLabel}} at a glance</div>
+              <div style="font-family:'Poppins',sans-serif;font-weight:500;font-size:19px;line-height:1.5;color:#fff;text-wrap:pretty">{{heroText}}</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <sc-for list="{{heroPills}}" as="p" hint-placeholder-count="3">
+                  <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:12px;padding:5px 12px;border-radius:999px;background:rgba(230,243,240,.14);color:#E6F3F0;border:1px solid rgba(208,232,226,.35)">{{p.text}}</span>
+                </sc-for>
+              </div>
+            </div>
+            <div style="flex:1;background:rgba(230,243,240,.1);border:1px solid rgba(208,232,226,.28);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:9px;min-width:230px">
+              <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:11px;letter-spacing:.12em;color:#D0E8E2;text-transform:uppercase">Recommended next step</div>
+              <div style="font-size:14.5px;line-height:1.55;color:#fff;text-wrap:pretty">{{heroRec}}</div>
+              <div style="flex:1"></div>
+              <button onClick="{{goActions}}" style="align-self:flex-start;font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:10px;border:none;background:#fff;color:#1E4D40">See the action plan</button>
+            </div>
+          </div>
+
+          <!-- metric cards -->
+          <div class="efg-grid5" style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px">
+            <sc-for list="{{cards}}" as="c" hint-placeholder-count="10">
+              <div onClick="{{c.go}}" class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:14px;padding:14px 15px;display:flex;flex-direction:column;gap:6px;cursor:pointer;box-shadow:0 1px 2px rgba(22,46,39,.05)" style-hover="border-color:#2E6B5A">
+                <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:10.5px;letter-spacing:.07em;color:#4A6B62;text-transform:uppercase">{{c.label}}</div>
+                <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:23px;line-height:1;color:#162E27">{{c.value}}</div>
+                <div style="font-size:11.5px;color:{{c.deltaColour}}">{{c.delta}}</div>
+                <div style="{{meaningStyle}}">{{c.meaning}}</div>
+                <div style="margin-top:auto"><span style="{{c.tagStyle}}">{{c.tag}}</span></div>
+              </div>
+            </sc-for>
+          </div>
+
+          <!-- budget + CPL -->
+          <div class="efg-2col" style="display:flex;gap:18px;align-items:stretch">
+            <div class="efg-card" style="flex:1.35;background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15.5px">Your budget this month</div>
+                <span style="font-size:12px;color:#4A6B62">Day {{dayOf}}</span>
+                <div style="flex:1"></div>
+                <span style="{{paceChipStyle}}">{{paceLabel}}</span>
+              </div>
+              <div style="position:relative;height:20px;border-radius:10px;background:#E6F3F0;border:1px solid #D0E8E2">
+                <div style="position:absolute;left:0;top:0;bottom:0;width:{{spendPct}};background:#1E4D40;border-radius:10px"></div>
+                <div title="Where spend should be today" style="position:absolute;left:{{expectedPct}};top:-6px;bottom:-6px;width:2px;background:#162E27;opacity:.55"></div>
+                <div style="position:absolute;left:{{expectedPct}};top:-22px;transform:translateX(-50%);font-family:'Poppins',sans-serif;font-weight:600;font-size:10px;color:#4A6B62;white-space:nowrap">today</div>
+              </div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <div style="flex:1;min-width:110px;background:#F3F8F6;border-radius:10px;padding:10px 12px"><div style="font-size:11px;color:#4A6B62">Spent so far</div><div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:16px">{{spendText}}</div></div>
+                <div style="flex:1;min-width:110px;background:#F3F8F6;border-radius:10px;padding:10px 12px"><div style="font-size:11px;color:#4A6B62">Expected by today</div><div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:16px">{{expectedText}}</div></div>
+                <div style="flex:1;min-width:110px;background:#F3F8F6;border-radius:10px;padding:10px 12px"><div style="font-size:11px;color:#4A6B62">Remaining</div><div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:16px">{{remainingText}}</div></div>
+                <div style="flex:1;min-width:110px;background:#F3F8F6;border-radius:10px;padding:10px 12px"><div style="font-size:11px;color:#4A6B62">Forecast month end</div><div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:16px">{{forecastText}}</div></div>
+              </div>
+              <div style="font-size:13px;line-height:1.55;color:#4A6B62;background:#E6F3F0;border-radius:10px;padding:10px 13px"><strong style="color:#1E4D40">What this means.</strong> {{budgetMeaning}}</div>
+              <button onClick="{{goBudget}}" style="align-self:flex-start;font-size:12px;font-weight:600;padding:7px 12px;border-radius:9px;border:1px solid #D0E8E2;background:#fff;color:#1E4D40">Full budget view</button>
+            </div>
+
+            <div class="efg-card" style="flex:1;background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15.5px">Cost per lead</div>
+                <div style="flex:1"></div>
+                <span style="{{cplChipStyle}}">{{cplChipText}}</span>
+              </div>
+              <div style="display:flex;align-items:baseline;gap:10px">
+                <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:34px;line-height:1">{{cplText}}</span>
+                <span style="font-size:13px;color:#4A6B62">against your {{targetText}} target</span>
+              </div>
+              <div style="position:relative;height:108px;display:flex;align-items:flex-end;gap:8px;padding:0 4px">
+                <div style="position:absolute;left:0;right:0;bottom:{{targetLineBottom}}px;border-top:2px dashed #162E27;opacity:.45"></div>
+                <div style="position:absolute;right:2px;bottom:{{targetLineLabelBottom}}px;font-family:'Poppins',sans-serif;font-weight:600;font-size:10px;color:#4A6B62">target {{targetText}}</div>
+                <sc-for list="{{cplBars}}" as="b" hint-placeholder-count="5">
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;justify-content:flex-end;height:100%">
+                    <div style="font-size:10.5px;color:#4A6B62">${{b.val}}</div>
+                    <div style="width:100%;max-width:34px;height:{{b.h}}px;border-radius:7px 7px 3px 3px;background:{{b.bg}}"></div>
+                    <div style="font-size:10px;color:#4A6B62;white-space:nowrap">{{b.label}}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:#4A6B62">
+                <span style="background:#E6F3F0;border-radius:8px;padding:5px 10px">Best · {{bestCampaign}}</span>
+                <span style="background:#F3F8F6;border-radius:8px;padding:5px 10px">Dearest · {{worstCampaign}}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- daily budget -->
+          <sc-if value="{{hasTracker}}" hint-placeholder-val="{{ false }}">
+            <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15.5px">Daily budget · last 7 days</div>
+                <span style="font-size:12px;color:#4A6B62">What each state campaign spent, day by day · plan is {{dailyTargetText}} a day</span>
+                <div style="flex:1"></div>
+                <sc-if value="{{trackerMoreOn}}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{goTracker}}" style="font-size:12px;font-weight:600;padding:7px 12px;border-radius:9px;border:1px solid #D0E8E2;background:#fff;color:#1E4D40;cursor:pointer">{{trackerMoreLabel}}</button>
+                </sc-if>
+              </div>
+              <div style="display:flex;flex-direction:column;overflow-x:auto">
+                <div style="display:flex;gap:8px;padding:0 2px 7px;font-family:'Poppins',sans-serif;font-weight:600;font-size:10.5px;letter-spacing:.06em;color:#4A6B62;text-transform:uppercase;min-width:640px">
+                  <span style="width:56px;flex:none">Date</span>
+                  <span style="flex:1;min-width:52px;text-align:right">VIC</span>
+                  <span style="flex:1;min-width:52px;text-align:right">NSW</span>
+                  <span style="flex:1;min-width:52px;text-align:right">QLD</span>
+                  <span style="flex:1;min-width:52px;text-align:right">SA</span>
+                  <span style="flex:1;min-width:52px;text-align:right">WA</span>
+                  <span style="flex:1;min-width:52px;text-align:right">Boost</span>
+                  <span style="flex:1;min-width:52px;text-align:right">Test</span>
+                  <span style="width:72px;flex:none;text-align:right">Daily total</span>
+                  <span style="width:84px;flex:none;text-align:right">MTD</span>
+                </div>
+                <sc-for list="{{trackerRecent}}" as="td" hint-placeholder-count="6">
+                  <div style="display:flex;gap:8px;align-items:center;padding:8px 2px;border-top:1px solid #E6F3F0;min-width:640px">
+                    <span style="width:56px;flex:none;font-family:'Poppins',sans-serif;font-weight:600;font-size:12.5px">{{td.day}}</span>
+                    <span style="flex:1;min-width:52px;text-align:right;font-size:12.5px">{{td.vic}}</span>
+                    <span style="flex:1;min-width:52px;text-align:right;font-size:12.5px">{{td.nsw}}</span>
+                    <span style="flex:1;min-width:52px;text-align:right;font-size:12.5px">{{td.qld}}</span>
+                    <span style="flex:1;min-width:52px;text-align:right;font-size:12.5px">{{td.sa}}</span>
+                    <span style="flex:1;min-width:52px;text-align:right;font-size:12.5px">{{td.wa}}</span>
+                    <span style="flex:1;min-width:52px;text-align:right;font-size:12.5px">{{td.boost}}</span>
+                    <span style="flex:1;min-width:52px;text-align:right;font-size:12.5px">{{td.test}}</span>
+                    <span style="width:72px;flex:none;text-align:right;font-family:'Poppins',sans-serif;font-weight:600;font-size:12.5px">{{td.total}}</span>
+                    <span style="width:84px;flex:none;text-align:right;font-size:12.5px;color:#4A6B62">{{td.mtd}}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="font-size:12px;color:#4A6B62">From the Daily Tracker upload · data to {{trackerAsOf}} · state by state breakdown in <a href="#" onClick="{{goTracker}}" style="color:#1E4D40;font-weight:600">Daily Tracker</a></div>
+            </div>
+          </sc-if>
+
+          <!-- attention + working well -->
+          <div class="efg-2col" style="display:flex;gap:18px;align-items:stretch">
+            <div style="flex:1;display:flex;flex-direction:column;gap:10px">
+              <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15.5px;padding-left:2px">Needs attention</div>
+              <sc-for list="{{attention}}" as="a" hint-placeholder-count="2">
+                <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:8px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+                  <div style="display:flex;gap:10px;align-items:flex-start">
+                    <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;line-height:1.4;flex:1;text-wrap:pretty">{{a.issue}}</div>
+                    <span style="{{a.chipStyle}}">{{a.priority}}</span>
+                  </div>
+                  <div style="font-size:13px;line-height:1.5;color:#4A6B62">{{a.impact}}</div>
+                  <div style="font-size:13px;line-height:1.5;color:#162E27;background:#E6F3F0;border-radius:9px;padding:8px 12px"><strong style="color:#1E4D40">Next step.</strong> {{a.step}}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:10px">
+              <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15.5px;padding-left:2px">Working well</div>
+              <sc-for list="{{working}}" as="w" hint-placeholder-count="3">
+                <div style="background:#E6F3F0;border:1px solid #D0E8E2;border-radius:14px;padding:14px 18px;display:flex;flex-direction:column;gap:4px">
+                  <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;color:#1E4D40">{{w.title}}</div>
+                  <div style="font-size:13px;line-height:1.5;color:#4A6B62">{{w.detail}}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- what changed -->
+          <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:4px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15.5px;margin-bottom:8px">What changed since the last update</div>
+            <sc-for list="{{changed}}" as="ch" hint-placeholder-count="5">
+              <div style="display:flex;align-items:center;gap:14px;padding:9px 2px;border-top:1px solid #E6F3F0">
+                <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:12px;color:#1E4D40;width:86px;flex:none">{{ch.area}}</span>
+                <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:11px;padding:2px 9px;border-radius:999px;background:#E6F3F0;color:#1E4D40;flex:none">{{ch.chip}}</span>
+                <span style="font-size:13.5px;color:#4A6B62;line-height:1.45">{{ch.detail}}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <!-- notes -->
+          <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15.5px">Notes and assumptions</div>
+            <sc-for list="{{notes}}" as="n" hint-placeholder-count="2">
+              <div style="display:flex;gap:10px;align-items:flex-start">
+                <span style="width:7px;height:7px;border-radius:50%;background:#2E6B5A;margin-top:6px;flex:none"></span>
+                <span style="font-size:13.5px;line-height:1.55;color:#162E27;flex:1">{{n.text}}</span>
+                <sc-if value="{{n.internal}}" hint-placeholder-val="{{ false }}"><span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:10.5px;padding:2px 8px;border-radius:999px;background:#162E27;color:#D0E8E2;flex:none">Internal only</span></sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ CAMPAIGNS ============ -->
+      <sc-if value="{{vCampaigns}}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Campaigns" style="display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;flex-direction:column;gap:3px">
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:20px">Campaigns</div>
+            <div style="font-size:13.5px;color:#4A6B62">Every campaign that ran in {{monthLabel}}. Click a row for quality notes and what we are doing about it.</div>
+          </div>
+          <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:8px 0;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 20px;font-family:'Poppins',sans-serif;font-weight:600;font-size:10.5px;letter-spacing:.07em;color:#4A6B62;text-transform:uppercase">
+              <span style="flex:2.2">Campaign</span><span style="flex:.9">Status</span><span style="flex:.8;text-align:right">Spend</span><span style="flex:.7;text-align:right">Leads</span><span style="flex:.7;text-align:right">CPL</span><span style="flex:.7;text-align:right">CTR</span><span style="flex:.7;text-align:right">CPC</span><span style="flex:1.1;text-align:right">Health</span><span style="width:22px"></span>
+            </div>
+            <sc-for list="{{campaigns}}" as="cp" hint-placeholder-count="3">
+              <div style="border-top:1px solid #E6F3F0">
+                <div onClick="{{cp.toggle}}" style="display:flex;align-items:center;gap:10px;padding:13px 20px;cursor:pointer" style-hover="background:#F3F8F6">
+                  <span style="flex:2.2;display:flex;flex-direction:column;gap:1px"><span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px">{{cp.name}}</span><span style="font-size:11.5px;color:#4A6B62">{{cp.objective}}</span></span>
+                  <span style="flex:.9"><span style="{{cp.statusStyle}}">{{cp.status}}</span></span>
+                  <span style="flex:.8;text-align:right;font-size:13.5px">{{cp.spendText}}</span>
+                  <span style="flex:.7;text-align:right;font-size:13.5px">{{cp.leads}}</span>
+                  <span style="flex:.7;text-align:right;font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;color:{{cp.cplColour}}">{{cp.cplText}}</span>
+                  <span style="flex:.7;text-align:right;font-size:13.5px;color:#4A6B62">{{cp.ctr}}%</span>
+                  <span style="flex:.7;text-align:right;font-size:13.5px;color:#4A6B62">{{cp.cpcText}}</span>
+                  <span style="flex:1.1;text-align:right"><span style="{{cp.healthStyle}}">{{cp.healthLabel}}</span></span>
+                  <span style="width:22px;text-align:center;color:#4A6B62;font-size:12px">{{cp.chev}}</span>
+                </div>
+                <sc-if value="{{cp.expanded}}" hint-placeholder-val="{{ false }}">
+                  <div class="efg-2col" style="display:flex;gap:14px;margin:0 20px 14px;padding:14px 16px;background:#E6F3F0;border-radius:12px">
+                    <div style="flex:1;display:flex;flex-direction:column;gap:4px"><span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:11px;letter-spacing:.07em;color:#1E4D40;text-transform:uppercase">Result quality</span><span style="font-size:13.5px;line-height:1.55">{{cp.quality}}</span></div>
+                    <div style="flex:1;display:flex;flex-direction:column;gap:4px"><span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:11px;letter-spacing:.07em;color:#1E4D40;text-transform:uppercase">Action</span><span style="font-size:13.5px;line-height:1.55">{{cp.action}}</span></div>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+          <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:6px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15.5px;margin-bottom:6px">Audiences</div>
+            <sc-for list="{{audiences}}" as="au" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:12px;padding:10px 2px;border-top:1px solid #E6F3F0;flex-wrap:wrap">
+                <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;flex:1.6;min-width:180px">{{au.name}}</span>
+                <span style="font-size:12.5px;color:#4A6B62;width:90px">{{au.spendText}} spent</span>
+                <span style="font-size:12.5px;color:#4A6B62;width:70px">{{au.leads}} leads</span>
+                <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;width:70px;color:{{au.cplColour}}">{{au.cplText}}</span>
+                <span style="font-size:12.5px;color:#4A6B62;flex:2;min-width:200px">{{au.note}}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ BUDGET ============ -->
+      <sc-if value="{{vBudget}}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Budget" style="display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;flex-direction:column;gap:3px">
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:20px">Budget</div>
+            <div style="font-size:13.5px;color:#4A6B62">{{budgetSubtitle}}</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <sc-for list="{{rangeChips}}" as="rc" hint-placeholder-count="4">
+              <button onClick="{{rc.go}}" style="{{rc.style}}">{{rc.label}}</button>
+            </sc-for>
+          </div>
+          <sc-if value="{{vBudgetMonth}}" hint-placeholder-val="{{ true }}">
+          <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+            <sc-for list="{{budgetBars}}" as="r" hint-placeholder-count="4">
+              <div style="display:flex;flex-direction:column;gap:5px">
+                <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#4A6B62"><span style="font-family:'Poppins',sans-serif;font-weight:600;color:#162E27">{{r.label}}</span><span style="font-family:'Poppins',sans-serif;font-weight:600;color:#162E27">{{r.valText}}</span></div>
+                <div style="height:16px;border-radius:8px;background:#F3F8F6;border:1px solid #E6F3F0;position:relative">
+                  <div style="position:absolute;left:0;top:0;bottom:0;width:{{r.w}};background:{{r.bg}};border-radius:8px;border:{{r.border}}"></div>
+                </div>
+                <div style="font-size:12px;color:#4A6B62">{{r.sub}}</div>
+              </div>
+            </sc-for>
+            <div style="font-size:13.5px;line-height:1.6;color:#162E27;background:#E6F3F0;border-radius:12px;padding:14px 16px"><strong style="color:#1E4D40">What this means.</strong> {{budgetMeaning}} {{budgetMeaning2}}</div>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{vBudgetRange}}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div class="efg-3col" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+                <sc-for list="{{rangeStats}}" as="rs" hint-placeholder-count="4">
+                  <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:2px">
+                    <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:22px;color:{{rs.colour}}">{{rs.value}}</span>
+                    <span style="font-size:12px;color:#4A6B62">{{rs.label}}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:14px 0;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+                <div style="padding:0 20px 8px;font-size:12.5px;color:#4A6B62">{{rangeCaption}}</div>
+                <sc-for list="{{historyRows}}" as="h" hint-placeholder-count="3">
+                  <div onClick="{{h.open}}" style="display:flex;align-items:center;gap:14px;padding:13px 20px;border-top:1px solid #E6F3F0;cursor:pointer;flex-wrap:wrap" style-hover="background:#F3F8F6">
+                    <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;width:110px;flex:none">{{h.label}}</span>
+                    <span style="{{h.stateStyle}}">{{h.stateChip}}</span>
+                    <div style="flex:1;min-width:140px;height:12px;border-radius:6px;background:#F3F8F6;border:1px solid #E6F3F0;position:relative">
+                      <div style="position:absolute;left:0;top:0;bottom:0;width:{{h.pct}};background:{{h.barBg}};border-radius:6px"></div>
+                    </div>
+                    <span style="font-size:12.5px;color:#4A6B62;width:150px">{{h.spendOf}}</span>
+                    <span style="font-size:12.5px;color:#4A6B62;width:70px">{{h.leads}}</span>
+                    <span style="{{h.cplStyle}}">{{h.cplChip}}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="font-size:12.5px;color:#4A6B62;padding-left:2px">Click a month to open its detailed view. Budgets and CPL targets are set per month, so each row compares against the target that applied at the time.</div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{vBudgetUpcoming}}" hint-placeholder-val="{{ false }}">
+            <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15.5px">Upcoming budgets</span>
+                <div style="flex:1"></div>
+                <sc-if value="{{isInternal}}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{createMonth}}" style="font-size:12px;font-weight:600;padding:7px 13px;border-radius:9px;border:1px solid #1E4D40;background:#fff;color:#1E4D40">Add a month</button>
+                </sc-if>
+              </div>
+              <div style="font-size:13px;line-height:1.55;color:#4A6B62">Budgets and CPL targets can be set ahead of time. When the month begins, spend tracking starts and your EFG team prepares the first report.</div>
+              <sc-for list="{{upcomingRows}}" as="u" hint-placeholder-count="2">
+                <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;border:1px solid #E6F3F0;border-radius:12px;flex-wrap:wrap">
+                  <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;width:130px">{{u.label}}</span>
+                  <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:11px;padding:3px 10px;border-radius:999px;background:#F3F8F6;color:#2E6B5A;border:1px solid #D0E8E2">Planned</span>
+                  <div style="flex:1"></div>
+                  <sc-if value="{{u.editable}}" hint-placeholder-val="{{ false }}">
+                    <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#4A6B62">Budget $
+                      <input type="number" value="{{u.budget}}" onChange="{{u.setBudget}}" style="width:90px;font-size:13px;padding:6px 9px;border-radius:8px;border:1px solid #D0E8E2">
+                    </label>
+                    <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#4A6B62">Target CPL $
+                      <input type="number" value="{{u.target}}" onChange="{{u.setTarget}}" style="width:70px;font-size:13px;padding:6px 9px;border-radius:8px;border:1px solid #D0E8E2">
+                    </label>
+                    <button onClick="{{u.del}}" style="{{u.delStyle}}">{{u.delLabel}}</button>
+                  </sc-if>
+                  <sc-if value="{{u.readonly}}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size:13px;color:#162E27">Budget <strong>{{u.budgetText}}</strong></span>
+                    <span style="font-size:13px;color:#162E27">Target CPL <strong>{{u.targetText}}</strong></span>
+                  </sc-if>
+                </div>
+              </sc-for>
+              <sc-if value="{{noUpcoming}}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:13px;color:#4A6B62;background:#F3F8F6;border-radius:10px;padding:12px 14px">No upcoming budgets set yet. Create the next month to plan ahead.</div>
+              </sc-if>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <!-- ============ DAILY TRACKER ============ -->
+      <sc-if value="{{vTracker}}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Daily Tracker" style="display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;flex-direction:column;gap:3px">
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:20px">Daily budget tracker</div>
+            <div style="font-size:13.5px;color:#4A6B62">Spend by state for each day of {{monthLabel}}, straight from the Daily Tracker upload.</div>
+          </div>
+          <sc-if value="{{hasTracker}}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <sc-for list="{{trackerStats}}" as="ts" hint-placeholder-count="5">
+                <div class="efg-card" style="flex:1;min-width:150px;background:#fff;border:1px solid #D0E8E2;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:3px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+                  <span style="font-size:11.5px;color:#4A6B62">{{ts.label}}</span>
+                  <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:18px">{{ts.value}}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:2px;box-shadow:0 1px 2px rgba(22,46,39,.05);overflow-x:auto">
+              <div style="display:flex;gap:8px;padding:0 2px 8px;font-family:'Poppins',sans-serif;font-weight:600;font-size:10.5px;letter-spacing:.06em;color:#4A6B62;text-transform:uppercase;min-width:900px">
+                <span style="width:56px;flex:none">Date</span>
+                <span style="width:52px;flex:none;text-align:right">VIC</span>
+                <span style="width:52px;flex:none;text-align:right">NSW</span>
+                <span style="width:52px;flex:none;text-align:right">QLD</span>
+                <span style="width:52px;flex:none;text-align:right">SA</span>
+                <span style="width:52px;flex:none;text-align:right">WA</span>
+                <span style="width:52px;flex:none;text-align:right">Boost</span>
+                <span style="width:52px;flex:none;text-align:right">Test</span>
+                <span style="flex:1;min-width:110px"></span>
+                <span style="width:66px;flex:none;text-align:right">Daily</span>
+                <span style="width:82px;flex:none;text-align:right">MTD</span>
+                <span style="width:82px;flex:none;text-align:right">Remaining</span>
+              </div>
+              <sc-for list="{{trackerRows}}" as="td" hint-placeholder-count="6">
+                <div style="display:flex;gap:8px;align-items:center;padding:8px 2px;border-top:1px solid #E6F3F0;min-width:900px">
+                  <span style="width:56px;flex:none;font-family:'Poppins',sans-serif;font-weight:600;font-size:12.5px">{{td.day}}</span>
+                  <span style="width:52px;flex:none;text-align:right;font-size:12.5px">{{td.vic}}</span>
+                  <span style="width:52px;flex:none;text-align:right;font-size:12.5px">{{td.nsw}}</span>
+                  <span style="width:52px;flex:none;text-align:right;font-size:12.5px">{{td.qld}}</span>
+                  <span style="width:52px;flex:none;text-align:right;font-size:12.5px">{{td.sa}}</span>
+                  <span style="width:52px;flex:none;text-align:right;font-size:12.5px">{{td.wa}}</span>
+                  <span style="width:52px;flex:none;text-align:right;font-size:12.5px">{{td.boost}}</span>
+                  <span style="width:52px;flex:none;text-align:right;font-size:12.5px">{{td.test}}</span>
+                  <span style="flex:1;min-width:110px;display:block;position:relative;height:12px;border-radius:6px;background:#F3F8F6;border:1px solid #E6F3F0">
+                    <span style="position:absolute;left:0;top:0;bottom:0;width:{{td.pct}}%;background:#1E4D40;border-radius:6px;display:block"></span>
+                    <span style="position:absolute;left:{{planPct}}%;top:-2px;bottom:-2px;width:2px;background:#162E27;opacity:.5;display:block"></span>
+                  </span>
+                  <span style="width:66px;flex:none;text-align:right;font-family:'Poppins',sans-serif;font-weight:600;font-size:12.5px">{{td.total}}</span>
+                  <span style="width:82px;flex:none;text-align:right;font-size:12.5px;color:#4A6B62">{{td.mtd}}</span>
+                  <span style="width:82px;flex:none;text-align:right;font-size:12.5px;color:#4A6B62">{{td.left}}</span>
+                </div>
+              </sc-for>
+              <div style="font-size:11.5px;color:#4A6B62;padding-top:8px">Bars compare each day with the biggest day so far. The tick marks the {{dailyTargetText}} daily plan. Boost and Test are the spike and creative test campaigns.</div>
+            </div>
+          </sc-if>
+          <sc-if value="{{noTracker}}" hint-placeholder-val="{{ false }}">
+            <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:24px;font-size:13.5px;color:#4A6B62">No Daily Tracker uploaded for {{monthLabel}} yet. The daily view starts with the first upload.</div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <!-- ============ A/B TESTING ============ -->
+      <sc-if value="{{vAbtest}}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="A/B Testing" style="display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;flex-direction:column;gap:3px">
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:20px">A/B testing</div>
+            <div style="font-size:13.5px;color:#4A6B62">{{abWindowText}}</div>
+          </div>
+          <sc-if value="{{hasAb}}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <sc-for list="{{abStats}}" as="ab" hint-placeholder-count="4">
+                <div class="efg-card" style="flex:1;min-width:150px;background:#fff;border:1px solid #D0E8E2;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:3px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+                  <span style="font-size:11.5px;color:#4A6B62">{{ab.label}}</span>
+                  <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:18px">{{ab.value}}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:16px 20px;display:flex;flex-direction:column;gap:4px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+              <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#4A6B62">Across all tests</span>
+              <span style="font-size:13.5px;line-height:1.6">{{abSummaryText}}</span>
+            </div>
+            <sc-for list="{{abTests}}" as="t" hint-placeholder-count="3">
+              <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+                <div style="display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap">
+                  <div style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:220px">
+                    <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15.5px">{{t.name}}</span>
+                    <span style="font-size:12px;color:#4A6B62">{{t.meta}}</span>
+                  </div>
+                  <span style="{{t.verdictStyle}}">{{t.verdict}}</span>
+                  <span style="{{t.statusStyle}}">{{t.status}}</span>
+                </div>
+                <sc-if value="{{t.clientOn}}" hint-placeholder-val="{{ false }}">
+                  <div style="font-size:13px;line-height:1.55;color:#4A6B62">{{t.client}}</div>
+                </sc-if>
+                <sc-if value="{{t.hasVariants}}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;flex-direction:column">
+                    <div style="display:flex;gap:10px;padding:0 2px 7px;font-family:'Poppins',sans-serif;font-weight:600;font-size:10.5px;letter-spacing:.06em;color:#4A6B62;text-transform:uppercase">
+                      <span style="flex:1.6;min-width:170px">Variant</span>
+                      <span style="flex:1;min-width:90px">Cost per result</span>
+                      <span style="width:64px;flex:none"></span>
+                      <span style="width:70px;flex:none;text-align:right">Spend</span>
+                      <span style="width:56px;flex:none;text-align:right">Results</span>
+                      <span style="width:48px;flex:none;text-align:right">CTR</span>
+                      <span style="width:44px;flex:none;text-align:right">Freq</span>
+                      <span style="width:86px;flex:none"></span>
+                    </div>
+                    <sc-for list="{{t.variants}}" as="v" hint-placeholder-count="3">
+                      <div style="display:flex;gap:10px;align-items:center;padding:9px 2px;border-top:1px solid #E6F3F0">
+                        <div style="flex:1.6;min-width:170px;display:flex;flex-direction:column;gap:1px">
+                          <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13px">{{v.name}}</span>
+                          <sc-if value="{{v.subOn}}" hint-placeholder-val="{{ false }}">
+                            <span style="font-size:11.5px;color:#4A6B62">{{v.sub}}</span>
+                          </sc-if>
+                        </div>
+                        <span style="flex:1;min-width:90px;display:block;position:relative;height:12px;border-radius:6px;background:#F3F8F6;border:1px solid #E6F3F0">
+                          <span style="position:absolute;left:0;top:0;bottom:0;width:{{v.barPct}}%;background:{{v.barColour}};border-radius:6px;display:block"></span>
+                        </span>
+                        <span style="width:64px;flex:none;text-align:right;font-family:'Poppins',sans-serif;font-weight:600;font-size:13px">{{v.cpr}}</span>
+                        <span style="width:70px;flex:none;text-align:right;font-size:12.5px">{{v.spend}}</span>
+                        <span style="width:56px;flex:none;text-align:right;font-size:12.5px">{{v.results}}</span>
+                        <span style="width:48px;flex:none;text-align:right;font-size:12.5px">{{v.ctr}}</span>
+                        <span style="width:44px;flex:none;text-align:right;font-size:12.5px">{{v.freq}}</span>
+                        <span style="width:86px;flex:none;display:flex;justify-content:flex-end">
+                          <sc-if value="{{v.tagOn}}" hint-placeholder-val="{{ false }}">
+                            <span style="{{v.tagStyle}}">{{v.tag}}</span>
+                          </sc-if>
+                        </span>
+                      </div>
+                    </sc-for>
+                    <div style="font-size:11.5px;color:#4A6B62;padding-top:8px">{{t.totals}} · shorter bar = cheaper result</div>
+                  </div>
+                </sc-if>
+                <div style="font-size:13px;line-height:1.55;background:#E6F3F0;border-radius:10px;padding:9px 13px"><strong style="color:#1E4D40">Conclusion.</strong> {{t.conclusion}}</div>
+                <div style="font-size:13px;line-height:1.55;background:#F3F8F6;border-radius:10px;padding:9px 13px"><strong style="color:#1E4D40">Next step.</strong> {{t.next}}</div>
+                <sc-if value="{{isInternal}}" hint-placeholder-val="{{ false }}">
+                  <div style="font-size:12.5px;line-height:1.55;color:#4A6B62;border:1px dashed #D0E8E2;border-radius:10px;padding:9px 13px"><strong style="color:#1E4D40">How the log reads it · internal.</strong> {{t.reasoning}}</div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </sc-if>
+          <sc-if value="{{noTests}}" hint-placeholder-val="{{ false }}">
+            <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:24px;font-size:13.5px;color:#4A6B62">No A/B Testing Log for {{monthLabel}} yet. Add one under Client settings → Report uploads and this page fills in automatically.</div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <!-- ============ ACTIONS ============ -->
+      <sc-if value="{{vActions}}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Actions" style="display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;flex-direction:column;gap:3px">
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:20px">Action plan</div>
+            <div style="font-size:13.5px;color:#4A6B62">Prepared by your EFG team from this month's results, and reviewed before it reaches you. Actions marked "You" need something from your side.</div>
+          </div>
+          <div class="efg-board" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:start">
+            <sc-for list="{{actionCols}}" as="col" hint-placeholder-count="4">
+              <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+                <div style="display:flex;align-items:center;gap:8px"><span style="{{col.headStyle}}">{{col.label}}</span><span style="font-size:12px;color:#4A6B62">{{col.count}}</span></div>
+                <sc-for list="{{col.items}}" as="it" hint-placeholder-count="2">
+                  <div class="efg-card" style="{{it.cardStyle}}">
+                    <div style="display:flex;gap:8px;align-items:flex-start">
+                      <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;line-height:1.4;flex:1;text-wrap:pretty">{{it.title}}</div>
+                      <span style="{{it.prioStyle}}">{{it.priority}}</span>
+                    </div>
+                    <div style="font-size:12.5px;line-height:1.5;color:#4A6B62">{{it.why}}</div>
+                    <div style="font-size:12px;color:#1E4D40;background:#E6F3F0;border-radius:8px;padding:6px 10px;line-height:1.45"><strong>Expected impact.</strong> {{it.impact}}</div>
+                    <div style="display:flex;align-items:center;gap:8px;font-size:11.5px;color:#4A6B62;flex-wrap:wrap">
+                      <span style="font-family:'Poppins',sans-serif;font-weight:600;color:#162E27">{{it.owner}}</span><span>·</span><span>{{it.due}}</span>
+                      <button onClick="{{it.act}}" style="margin-left:auto;font-size:11px;font-weight:600;padding:4px 10px;border-radius:7px;border:1px solid #D0E8E2;background:#fff;color:#1E4D40">{{it.actLabel}}</button>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ CREATIVE ============ -->
+      <sc-if value="{{vCreative}}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Creative" style="display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;flex-direction:column;gap:3px">
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:20px">Creative performance</div>
+            <div style="font-size:13.5px;color:#4A6B62">Which ads are earning their keep in {{monthLabel}}, and which need a rest.</div>
+          </div>
+          <div class="efg-3col" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start">
+            <sc-for list="{{creatives}}" as="cr" hint-placeholder-count="3">
+              <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+                <span style="{{cr.tagStyle}}">{{cr.tagLabel}}</span>
+                <div style="display:flex;flex-direction:column;gap:2px">
+                  <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15px">{{cr.name}}</div>
+                  <div style="font-size:12px;color:#4A6B62">{{cr.type}}</div>
+                </div>
+                <div style="display:flex;gap:8px">
+                  <div style="flex:1;background:#F3F8F6;border-radius:9px;padding:8px 10px"><div style="font-size:10.5px;color:#4A6B62">CPL</div><div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15px">${{cr.cpl}}</div></div>
+                  <div style="flex:1;background:#F3F8F6;border-radius:9px;padding:8px 10px"><div style="font-size:10.5px;color:#4A6B62">CTR</div><div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15px">{{cr.ctr}}%</div></div>
+                  <div style="flex:1;background:#F3F8F6;border-radius:9px;padding:8px 10px"><div style="font-size:10.5px;color:#4A6B62">Frequency</div><div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15px">{{cr.freq}}</div></div>
+                </div>
+                <div style="font-size:13px;line-height:1.55;color:#162E27"><strong style="color:#1E4D40;font-family:'Poppins',sans-serif;font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:3px">What we see</strong>{{cr.note}}</div>
+                <div style="font-size:13px;line-height:1.55;color:#162E27;background:#E6F3F0;border-radius:10px;padding:10px 12px"><strong style="color:#1E4D40;font-family:'Poppins',sans-serif;font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:3px">Recommended next step</strong>{{cr.rec}}</div>
+                <sc-if value="{{cr.canAdd}}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{cr.addAction}}" style="align-self:flex-start;font-size:12px;font-weight:600;padding:7px 12px;border-radius:9px;border:1px solid #1E4D40;background:#fff;color:#1E4D40">{{cr.addLabel}}</button>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ REPORTS ============ -->
+      <sc-if value="{{vReports}}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Reports" style="display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;flex-direction:column;gap:3px">
+            <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:20px">Reports</div>
+            <div style="font-size:13.5px;color:#4A6B62">Each month your EFG team prepares this report, checks it, then publishes it here. Nothing updates behind your back.</div>
+          </div>
+          <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:8px 0;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+            <sc-for list="{{reportRows}}" as="r" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;gap:14px;padding:15px 20px;border-top:1px solid #E6F3F0;flex-wrap:wrap">
+                <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14.5px;width:110px">{{r.label}}</span>
+                <span style="{{r.statusStyle}}">{{r.status}}</span>
+                <span style="font-size:12.5px;color:#4A6B62">Updated {{r.updated}}</span>
+                <span style="font-size:12.5px;color:#4A6B62">{{r.mini}}</span>
+                <div style="flex:1"></div>
+                <sc-if value="{{r.openable}}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{r.open}}" style="font-size:12px;font-weight:600;padding:7px 13px;border-radius:9px;border:1px solid #1E4D40;background:#1E4D40;color:#fff">Open</button>
+                  <button onClick="{{exportPdf}}" style="font-size:12px;font-weight:600;padding:7px 13px;border-radius:9px;border:1px solid #D0E8E2;background:#fff;color:#1E4D40">Export PDF</button>
+                </sc-if>
+                <sc-if value="{{r.planned}}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{r.goPlan}}" style="font-size:12px;font-weight:600;padding:7px 13px;border-radius:9px;border:1px solid #D0E8E2;background:#fff;color:#1E4D40">Set budget</button>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ ADMIN ============ -->
+      <sc-if value="{{vAdmin}}" hint-placeholder-val="{{ false }}">
+        <div data-screen-label="Admin" style="display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <div style="display:flex;flex-direction:column;gap:3px;margin-right:10px">
+              <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:20px">Admin workspace</div>
+              <div style="font-size:13.5px;color:#4A6B62">Generate once, review, publish. Clients only ever read the published report.</div>
+            </div>
+            <div style="flex:1"></div>
+            <button onClick="{{goPipeline}}" style="{{pipeTabStyle}}">Pipeline</button>
+            <button onClick="{{goDesk}}" style="{{deskTabStyle}}">Review desk</button>
+            <button onClick="{{goCSettings}}" style="{{csTabStyle}}">Client settings</button>
+            <button onClick="{{addClient}}" style="font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:10px;border:1px solid #1E4D40;background:#fff;color:#1E4D40">Add client</button>
+            <button onClick="{{goOverview}}" style="font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:10px;border:1px solid #D0E8E2;background:#fff;color:#1E4D40">Back to dashboard</button>
+          </div>
+
+          <!-- PIPELINE -->
+          <sc-if value="{{vPipeline}}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div class="efg-3col" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+                <sc-for list="{{pipeStats}}" as="ps" hint-placeholder-count="4">
+                  <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:2px">
+                    <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:22px;color:{{ps.colour}}">{{ps.value}}</span>
+                    <span style="font-size:12px;color:#4A6B62">{{ps.label}}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:8px 0;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+                <div style="display:flex;align-items:center;gap:10px;padding:10px 20px;font-family:'Poppins',sans-serif;font-weight:600;font-size:10.5px;letter-spacing:.07em;color:#4A6B62;text-transform:uppercase">
+                  <span style="flex:1.8">Client</span><span style="flex:1.1">Industry</span><span style="flex:.7;text-align:right">Budget</span><span style="flex:.7;text-align:right">Target CPL</span><span style="flex:1">Updated</span><span style="flex:.9">Status</span><span style="flex:1.2"></span>
+                </div>
+                <sc-for list="{{pipeRows}}" as="p" hint-placeholder-count="3">
+                  <div style="display:flex;align-items:center;gap:10px;padding:13px 20px;border-top:1px solid #E6F3F0">
+                    <span style="flex:1.8;display:flex;align-items:center;gap:9px"><sc-if value="{{p.hasLogo}}" hint-placeholder-val="{{ false }}"><span style="background:#fff;border:1px solid #D0E8E2;border-radius:8px;padding:4px 8px;display:inline-flex;align-items:center">{{p.logoImg}}</span></sc-if><sc-if value="{{p.noLogo}}" hint-placeholder-val="{{ true }}"><span style="width:28px;height:28px;border-radius:8px;background:{{p.colour}};color:#fff;display:inline-flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:600;font-size:11px">{{p.initials}}</span></sc-if><span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px">{{p.name}}</span></span>
+                    <span style="flex:1.1;font-size:12.5px;color:#4A6B62">{{p.industry}}</span>
+                    <span style="flex:.7;text-align:right;font-size:13px">{{p.budget}}</span>
+                    <span style="flex:.7;text-align:right;font-size:13px">{{p.target}}</span>
+                    <span style="flex:1;font-size:12.5px;color:#4A6B62">{{p.updated}}</span>
+                    <span style="flex:.9"><span style="{{p.statusStyle}}">{{p.status}}</span></span>
+                    <span style="flex:1.2;display:flex;gap:7px;justify-content:flex-end">
+                      <button onClick="{{p.review}}" style="font-size:11.5px;font-weight:600;padding:6px 11px;border-radius:8px;border:1px solid #1E4D40;background:#1E4D40;color:#fff">Review</button>
+                      <button onClick="{{p.openDash}}" style="font-size:11.5px;font-weight:600;padding:6px 11px;border-radius:8px;border:1px solid #D0E8E2;background:#fff;color:#1E4D40">Dashboard</button>
+                      <sc-if value="{{p.canDelete}}" hint-placeholder-val="{{ false }}"><button onClick="{{p.del}}" style="{{p.delStyle}}">{{p.delLabel}}</button></sc-if>
+                    </span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- REVIEW DESK -->
+          <sc-if value="{{vDesk}}" hint-placeholder-val="{{ false }}">
+            <div class="efg-2col" style="display:flex;gap:18px;align-items:flex-start">
+              <div style="flex:1.15;display:flex;flex-direction:column;gap:12px;min-width:0">
+                <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:12px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <sc-if value="{{hasLogo}}" hint-placeholder-val="{{ false }}"><span style="background:#fff;border:1px solid #D0E8E2;border-radius:10px;padding:6px 10px;display:inline-flex;align-items:center">{{logoImgDesk}}</span></sc-if>
+                    <sc-if value="{{noLogo}}" hint-placeholder-val="{{ true }}"><span style="width:34px;height:34px;border-radius:10px;background:{{clientColour}};color:#fff;display:inline-flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:600;font-size:13px">{{clientInitials}}</span></sc-if>
+                    <div style="display:flex;flex-direction:column"><span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15px">{{clientName}} · {{monthLabel}}</span><span style="font-size:12px;color:#4A6B62">{{deskContact}}</span></div>
+                    <div style="flex:1"></div>
+                    <button onClick="{{goOverview}}" style="font-size:12px;font-weight:600;padding:7px 12px;border-radius:9px;border:1px solid #D0E8E2;background:#fff;color:#1E4D40">Open full preview</button>
+                  </div>
+                  <div style="border:1px solid #E6F3F0;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;background:#F3F8F6">
+                    <div style="background:#1E4D40;border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:7px">
+                      <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:10px;letter-spacing:.1em;color:#D0E8E2;text-transform:uppercase">{{monthLabel}} at a glance</span>
+                      <span style="font-size:13px;line-height:1.5;color:#fff">{{heroText}}</span>
+                    </div>
+                    <div style="display:flex;gap:8px">
+                      <div style="flex:1;background:#fff;border:1px solid #D0E8E2;border-radius:9px;padding:9px"><div style="font-size:10px;color:#4A6B62">Spend</div><div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14px">{{spendText}}</div></div>
+                      <div style="flex:1;background:#fff;border:1px solid #D0E8E2;border-radius:9px;padding:9px"><div style="font-size:10px;color:#4A6B62">Leads</div><div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14px">{{leadsVal}}</div></div>
+                      <div style="flex:1;background:#fff;border:1px solid #D0E8E2;border-radius:9px;padding:9px"><div style="font-size:10px;color:#4A6B62">CPL</div><div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14px">{{cplText}}</div></div>
+                      <div style="flex:1;background:#fff;border:1px solid #D0E8E2;border-radius:9px;padding:9px"><div style="font-size:10px;color:#4A6B62">Pacing</div><div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14px">{{pacePctText}}</div></div>
+                    </div>
+                    <span style="font-size:11.5px;color:#4A6B62">Preview updates live as you edit on the right.</span>
+                  </div>
+                </div>
+                <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14.5px">Data ingestion</span>
+                    <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:10.5px;padding:2px 9px;border-radius:999px;background:#E6F3F0;color:#1E4D40">Manual · daily</span>
+                  </div>
+                  <div style="font-size:13px;color:#4A6B62;line-height:1.55">The team adds one export per day per report type. The newest upload becomes the Current version and updates this report; the file it replaces is archived with a comparison. Manage versions under Client settings.</div>
+                  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                    <span style="font-size:12.5px;color:#4A6B62">Last data · {{updated}}</span>
+                    <div style="flex:1"></div>
+                    <button onClick="{{openUpload}}" style="font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:10px;border:none;background:#1E4D40;color:#fff;cursor:pointer">Add today's report</button>
+                  </div>
+                </div>
+              </div>
+
+              <div style="flex:1;display:flex;flex-direction:column;gap:12px;min-width:0">
+                <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:12px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+                  <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14.5px">This month's setup</span>
+                  <div style="display:flex;gap:12px">
+                    <label style="flex:1;display:flex;flex-direction:column;gap:5px;font-family:'Poppins',sans-serif;font-weight:600;font-size:11.5px;color:#4A6B62">Monthly budget
+                      <input type="number" value="{{budgetVal}}" onChange="{{setBudgetVal}}" style="font-size:14px;padding:8px 11px;border-radius:9px;border:1px solid #D0E8E2;width:100%;box-sizing:border-box">
+                    </label>
+                    <label style="flex:1;display:flex;flex-direction:column;gap:5px;font-family:'Poppins',sans-serif;font-weight:600;font-size:11.5px;color:#4A6B62">Target CPL
+                      <input type="number" value="{{targetVal}}" onChange="{{setTargetVal}}" style="font-size:14px;padding:8px 11px;border-radius:9px;border:1px solid #D0E8E2;width:100%;box-sizing:border-box">
+                    </label>
+                  </div>
+                  <span style="font-size:11.5px;color:#4A6B62">Configurable per client, per month. Pacing and targets update everywhere.</span>
+                </div>
+
+                <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:8px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14.5px">Months</span>
+                    <div style="flex:1"></div>
+                    <button onClick="{{createMonth}}" style="font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:8px;border:1px solid #1E4D40;background:#fff;color:#1E4D40">Create next month</button>
+                  </div>
+                  <sc-for list="{{deskMonths}}" as="dm" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid #E6F3F0;border-radius:10px;flex-wrap:wrap">
+                      <span style="font-size:13px;font-weight:700;flex:1;min-width:90px">{{dm.label}}</span>
+                      <span style="{{dm.statusStyle}}">{{dm.status}}</span>
+                      <sc-if value="{{dm.openable}}" hint-placeholder-val="{{ true }}"><button onClick="{{dm.open}}" style="font-size:11px;font-weight:600;padding:4px 10px;border-radius:7px;border:1px solid #D0E8E2;background:#fff;color:#1E4D40">Open</button></sc-if>
+                      <sc-if value="{{dm.deletable}}" hint-placeholder-val="{{ false }}"><button onClick="{{dm.del}}" style="{{dm.delStyle}}">{{dm.delLabel}}</button></sc-if>
+                    </div>
+                  </sc-for>
+                  <span style="font-size:11.5px;color:#4A6B62">Published months are kept as history and cannot be deleted here.</span>
+                </div>
+
+                <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14.5px">Review action items</span>
+                    <div style="flex:1"></div>
+                    <button onClick="{{addAction}}" style="font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:8px;border:1px solid #1E4D40;background:#fff;color:#1E4D40">Add item</button>
+                  </div>
+                  <sc-for list="{{deskActions}}" as="da" hint-placeholder-count="4">
+                    <div style="{{da.rowStyle}}">
+                      <sc-if value="{{da.editing}}" hint-placeholder-val="{{ false }}">
+                        <input value="{{da.title}}" onChange="{{da.setTitle}}" style="flex:1;font-size:13px;padding:6px 9px;border-radius:8px;border:1px solid #2E6B5A;min-width:0">
+                      </sc-if>
+                      <sc-if value="{{da.notEditing}}" hint-placeholder-val="{{ true }}">
+                        <span style="flex:1;font-size:13px;line-height:1.4;min-width:0">{{da.title}}</span>
+                      </sc-if>
+                      <button onClick="{{da.edit}}" style="font-size:11px;font-weight:600;padding:4px 9px;border-radius:7px;border:1px solid #D0E8E2;background:#fff;color:#1E4D40;flex:none">{{da.editLabel}}</button>
+                      <button onClick="{{da.toggleKeep}}" style="{{da.keepStyle}}">{{da.keepLabel}}</button>
+                      <button onClick="{{da.del}}" style="{{da.delStyle}}">{{da.delLabel}}</button>
+                    </div>
+                  </sc-for>
+                  <span style="font-size:11.5px;color:#4A6B62">Dropped items never reach the client.</span>
+                </div>
+
+                <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14.5px">Notes</span>
+                    <div style="flex:1"></div>
+                    <button onClick="{{addNote}}" style="font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:8px;border:1px solid #1E4D40;background:#fff;color:#1E4D40">Add note</button>
+                  </div>
+                  <sc-for list="{{deskNotes}}" as="dn" hint-placeholder-count="2">
+                    <div style="display:flex;flex-direction:column;gap:6px;border:1px solid #E6F3F0;border-radius:10px;padding:10px">
+                      <textarea value="{{dn.text}}" onChange="{{dn.setText}}" rows="2" style="font-size:13px;line-height:1.45;border:none;resize:vertical;background:transparent;outline:none;padding:0"></textarea>
+                      <div style="display:flex;gap:8px">
+                        <button onClick="{{dn.toggleVis}}" style="{{dn.visStyle}}">{{dn.visLabel}}</button>
+                        <button onClick="{{dn.del}}" style="{{dn.delStyle}}">{{dn.delLabel}}</button>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+
+                <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:12px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:14.5px">Report status</span>
+                    <span style="{{statusChipStyle}}">{{reportStatus}}</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#4A6B62">
+                    <span style="{{wfDraft}}">Draft</span><span>›</span><span style="{{wfApproved}}">Approved</span><span>›</span><span style="{{wfPublished}}">Published</span>
+                  </div>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <button onClick="{{setDraft}}" style="font-size:12px;font-weight:600;padding:8px 13px;border-radius:9px;border:1px solid #D0E8E2;background:#fff;color:#1E4D40">Save as draft</button>
+                    <button onClick="{{setApproved}}" style="font-size:12px;font-weight:600;padding:8px 13px;border-radius:9px;border:1px solid #1E4D40;background:#fff;color:#1E4D40">Approve</button>
+                    <button onClick="{{setPublished}}" style="font-size:12px;font-weight:600;padding:8px 13px;border-radius:9px;border:none;background:#1E4D40;color:#fff">Publish to client</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- CLIENT SETTINGS -->
+          <sc-if value="{{vCSettings}}" hint-placeholder-val="{{ false }}">
+            <div data-screen-label="Client settings" class="efg-2col" style="display:flex;gap:18px;align-items:flex-start">
+              <div style="flex:1.15;display:flex;flex-direction:column;gap:14px;min-width:0">
+                <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:18px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+                  <div style="display:flex;flex-direction:column;gap:2px">
+                    <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15.5px">Client details</span>
+                    <span style="font-size:12.5px;color:#4A6B62">These shape {{clientName}}'s dashboard and every new monthly report.</span>
+                  </div>
+                  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px">
+                    <label style="display:flex;flex-direction:column;gap:5px;font-family:'Poppins',sans-serif;font-weight:600;font-size:12px;color:#4A6B62">Client name
+                      <input value="{{nameVal}}" onChange="{{setName}}" style="width:100%;box-sizing:border-box;font-size:14px;padding:9px 12px;border-radius:10px;border:1px solid #D0E8E2">
+                    </label>
+                    <label style="display:flex;flex-direction:column;gap:5px;font-family:'Poppins',sans-serif;font-weight:600;font-size:12px;color:#4A6B62">Industry
+                      <input value="{{industryVal}}" onChange="{{setIndustry}}" style="width:100%;box-sizing:border-box;font-size:14px;padding:9px 12px;border-radius:10px;border:1px solid #D0E8E2">
+                    </label>
+                    <label style="display:flex;flex-direction:column;gap:5px;font-family:'Poppins',sans-serif;font-weight:600;font-size:12px;color:#4A6B62">Campaign objective
+                      <input value="{{objectiveVal}}" onChange="{{setObjective}}" style="width:100%;box-sizing:border-box;font-size:14px;padding:9px 12px;border-radius:10px;border:1px solid #D0E8E2">
+                    </label>
+                    <label style="display:flex;flex-direction:column;gap:5px;font-family:'Poppins',sans-serif;font-weight:600;font-size:12px;color:#4A6B62">EFG account manager
+                      <input value="{{managerName}}" onChange="{{setManager}}" style="width:100%;box-sizing:border-box;font-size:14px;padding:9px 12px;border-radius:10px;border:1px solid #D0E8E2">
+                    </label>
+                    <label style="display:flex;flex-direction:column;gap:5px;font-family:'Poppins',sans-serif;font-weight:600;font-size:12px;color:#4A6B62">Client contact
+                      <input value="{{contactVal}}" onChange="{{setContact}}" style="width:100%;box-sizing:border-box;font-size:14px;padding:9px 12px;border-radius:10px;border:1px solid #D0E8E2">
+                    </label>
+                    <label style="display:flex;flex-direction:column;gap:5px;font-family:'Poppins',sans-serif;font-weight:600;font-size:12px;color:#4A6B62">Contact role
+                      <input value="{{contactRoleVal}}" onChange="{{setContactRole}}" style="width:100%;box-sizing:border-box;font-size:14px;padding:9px 12px;border-radius:10px;border:1px solid #D0E8E2">
+                    </label>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:8px">
+                    <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:12px;color:#4A6B62">Client accent colour</span>
+                    <div style="display:flex;gap:10px">
+                      <sc-for list="{{swatches}}" as="s" hint-placeholder-count="5">
+                        <button onClick="{{s.pick}}" title="{{s.name}}" style="{{s.style}}"></button>
+                      </sc-for>
+                    </div>
+                    <span style="font-size:12px;color:#4A6B62">Used only on the client's avatar and highlights. EFG green leads the design. When a logo is on file it replaces the avatar.</span>
+                  </div>
+                  <button onClick="{{saveSettings}}" style="align-self:flex-start;font-size:13px;font-weight:600;padding:9px 16px;border-radius:10px;border:none;background:#1E4D40;color:#fff">Save settings</button>
+                </div>
+                <sc-if value="{{canDeleteClient}}" hint-placeholder-val="{{ false }}">
+                  <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:18px 22px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                    <div style="display:flex;flex-direction:column;gap:2px"><span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px">Remove this client</span><span style="font-size:12.5px;color:#4A6B62">Deletes {{clientName}} and all their reports from the portal.</span></div>
+                    <div style="flex:1"></div>
+                    <button onClick="{{settingsDel}}" style="{{settingsDelStyle}}">{{settingsDelLabel}}</button>
+                  </div>
+                </sc-if>
+              </div>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:14px">
+                <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+                  <div style="display:flex;align-items:flex-start;gap:10px">
+                    <div style="display:flex;flex-direction:column;gap:2px">
+                      <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15.5px">Budget and target history</span>
+                      <span style="font-size:12.5px;color:#4A6B62">The current month is Published and editable. Past months archive automatically and become read only. Future months are Planned.</span>
+                    </div>
+                    <div style="flex:1"></div>
+                    <button onClick="{{createMonth}}" style="font-size:12px;font-weight:600;padding:7px 13px;border-radius:9px;border:1px solid #1E4D40;background:#fff;color:#1E4D40;cursor:pointer;flex:none">Add a month</button>
+                  </div>
+                  <div style="display:flex;gap:10px;padding:4px 2px 0;font-family:'Poppins',sans-serif;font-weight:600;font-size:10.5px;letter-spacing:.07em;color:#4A6B62;text-transform:uppercase">
+                    <span style="width:110px;flex:none">Month</span><span style="width:100px;flex:none">Budget $</span><span style="width:80px;flex:none">Target $</span><span style="flex:1">Result</span>
+                  </div>
+                  <sc-for list="{{settingsHistory}}" as="sh" hint-placeholder-count="5">
+                    <div style="display:flex;gap:10px;align-items:center;padding:9px 2px;border-top:1px solid #E6F3F0;flex-wrap:wrap">
+                      <span style="width:110px;flex:none;font-family:'Poppins',sans-serif;font-weight:600;font-size:13px">{{sh.label}}</span>
+                      <sc-if value="{{sh.editable}}" hint-placeholder-val="{{ true }}">
+                        <input type="number" value="{{sh.budgetVal}}" onChange="{{sh.setBudget}}" style="width:100px;flex:none;box-sizing:border-box;font-size:13px;padding:6px 9px;border-radius:8px;border:1px solid #D0E8E2">
+                        <input type="number" value="{{sh.targetVal}}" onChange="{{sh.setTarget}}" style="width:80px;flex:none;box-sizing:border-box;font-size:13px;padding:6px 9px;border-radius:8px;border:1px solid #D0E8E2">
+                      </sc-if>
+                      <sc-if value="{{sh.locked}}" hint-placeholder-val="{{ false }}">
+                        <span style="width:100px;flex:none;box-sizing:border-box;font-size:13px;padding:7px 0;color:#4A6B62">{{sh.budgetText}}</span>
+                        <span style="width:80px;flex:none;box-sizing:border-box;font-size:13px;padding:7px 0;color:#4A6B62">{{sh.targetText}}</span>
+                      </sc-if>
+                      <span style="flex:1;font-size:12.5px;color:#4A6B62;min-width:150px">{{sh.resultText}}</span>
+                      <span style="{{sh.statusStyle}}">{{sh.status}}</span>
+                      <sc-if value="{{sh.openable}}" hint-placeholder-val="{{ false }}">
+                        <button onClick="{{sh.open}}" style="font-size:11px;font-weight:600;padding:5px 11px;border-radius:8px;border:1px solid #D0E8E2;background:#fff;color:#1E4D40;cursor:pointer">Open</button>
+                      </sc-if>
+                      <sc-if value="{{sh.deletable}}" hint-placeholder-val="{{ false }}">
+                        <button onClick="{{sh.del}}" style="{{sh.delStyle}}">{{sh.delLabel}}</button>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                  <span style="font-size:11.5px;color:#4A6B62">Archived months are read only — open them to revisit the report. Only planned months can be deleted.</span>
+                </div>
+
+                <div class="efg-card" style="background:#fff;border:1px solid #D0E8E2;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 2px rgba(22,46,39,.05)">
+                  <div style="display:flex;align-items:flex-start;gap:10px">
+                    <div style="display:flex;flex-direction:column;gap:2px">
+                      <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:15.5px">Report uploads</span>
+                      <span style="font-size:12.5px;color:#4A6B62">The team adds the day's export here. The newest file of each type becomes Current and drives the dashboard; the one it replaces is archived with a comparison.</span>
+                    </div>
+                    <div style="flex:1"></div>
+                    <button onClick="{{openUpload}}" style="font-size:12px;font-weight:600;padding:7px 13px;border-radius:9px;border:none;background:#1E4D40;color:#fff;cursor:pointer;flex:none">Add report</button>
+                  </div>
+                  <sc-for list="{{uploadRows}}" as="up" hint-placeholder-count="3">
+                    <div style="display:flex;flex-direction:column;border:1px solid #E6F3F0;border-radius:12px">
+                      <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;flex-wrap:wrap">
+                        <span style="{{up.typeStyle}}">{{up.type}}</span>
+                        <div style="display:flex;flex-direction:column;gap:1px;min-width:150px">
+                          <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:13px">Data to {{up.asOf}} · {{up.ver}}</span>
+                          <span style="font-size:11px;color:#4A6B62;word-break:break-all">{{up.file}}</span>
+                        </div>
+                        <div style="flex:1"></div>
+                        <span style="font-size:12.5px;color:#4A6B62">{{up.sumText}}</span>
+                        <span style="{{up.statusStyle}}">{{up.status}}</span>
+                        <sc-if value="{{up.canCompare}}" hint-placeholder-val="{{ false }}">
+                          <button onClick="{{up.toggleCompare}}" style="font-size:11px;font-weight:600;padding:5px 11px;border-radius:8px;border:1px solid #D0E8E2;background:#fff;color:#1E4D40;cursor:pointer">{{up.compareLabel}}</button>
+                        </sc-if>
+                      </div>
+                      <sc-if value="{{up.compareOn}}" hint-placeholder-val="{{ false }}">
+                        <div style="border-top:1px solid #E6F3F0;background:#F8FBFA;border-radius:0 0 12px 12px;padding:12px 14px;display:flex;flex-direction:column;gap:5px">
+                          <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#4A6B62">What changed · {{up.compareNote}}</span>
+                          <div style="display:flex;gap:10px;font-family:'Poppins',sans-serif;font-weight:600;font-size:10.5px;letter-spacing:.05em;color:#4A6B62;text-transform:uppercase;padding-top:3px">
+                            <span style="flex:1.4">Metric</span><span style="flex:1">Previous</span><span style="flex:1">Current</span><span style="flex:1">Change</span>
+                          </div>
+                          <sc-for list="{{up.compareRows}}" as="crw" hint-placeholder-count="4">
+                            <div style="display:flex;gap:10px;font-size:12.5px;padding:2px 0">
+                              <span style="flex:1.4;color:#162E27">{{crw.label}}</span><span style="flex:1;color:#4A6B62">{{crw.prev}}</span><span style="flex:1;font-weight:600">{{crw.cur}}</span><span style="flex:1;font-weight:600;color:{{crw.colour}}">{{crw.delta}}</span>
+                            </div>
+                          </sc-for>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{noUploads}}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:13px;color:#4A6B62;background:#F3F8F6;border-radius:10px;padding:12px 14px">No reports added yet for this client. Add the first daily export to start the history.</div>
+                  </sc-if>
+                  <span style="font-size:11.5px;color:#4A6B62">Supported: Meta Ads Dashboard, Daily Budget Tracker and A/B Testing Log JSON exports — one Current version per type.</span>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+    </div>
+  </div>
+
+  <!-- add report dialog -->
+  <sc-if value="{{uploadDlgOn}}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{cancelUpload}}" style="position:fixed;inset:0;background:rgba(22,46,39,.45);display:flex;align-items:center;justify-content:center;z-index:90">
+      <div onClick="{{stopClick}}" style="background:#fff;border-radius:16px;padding:22px;width:min(440px,92vw);display:flex;flex-direction:column;gap:13px;box-shadow:0 24px 64px rgba(22,46,39,.35)">
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:16.5px">Add a report</span>
+          <span style="font-size:12.5px;color:#4A6B62;line-height:1.5">Upload the day's JSON export. It becomes the Current version for its type and updates the dashboard; the version it replaces is archived with a comparison.</span>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <sc-for list="{{uploadTypes}}" as="ut" hint-placeholder-count="3">
+            <button onClick="{{ut.pick}}" style="{{ut.style}}">{{ut.label}}</button>
+          </sc-for>
+        </div>
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:600;color:#4A6B62">Report file (.json)
+          <input type="file" accept=".json,application/json" onChange="{{onUploadFile}}" style="font-size:12.5px;color:#162E27">
+        </label>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;color:#4A6B62">
+          <span>Or use a sample:</span>
+          <button onClick="{{sampleMeta}}" style="font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:8px;border:1px solid #D0E8E2;background:#fff;color:#1E4D40;cursor:pointer">Meta Dashboard · 5 Jul</button>
+          <button onClick="{{sampleTracker}}" style="font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:8px;border:1px solid #D0E8E2;background:#fff;color:#1E4D40;cursor:pointer">Daily Tracker · 6 Jul</button>
+          <button onClick="{{sampleAb}}" style="font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:8px;border:1px solid #D0E8E2;background:#fff;color:#1E4D40;cursor:pointer">A/B Testing · 6 Jul</button>
+        </div>
+        <sc-if value="{{uploadParsedOn}}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12.5px;line-height:1.5;background:#E6F3F0;border:1px solid #D0E8E2;border-radius:10px;padding:10px 12px;color:#1E4D40"><strong>{{uploadFileName}}</strong><br>{{uploadParsedText}}</div>
+        </sc-if>
+        <sc-if value="{{uploadErrOn}}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12.5px;background:#fff;border:1px solid #C53030;border-radius:10px;padding:10px 12px;color:#C53030">{{uploadErr}}</div>
+        </sc-if>
+        <div style="display:flex;gap:8px;justify-content:flex-end;padding-top:2px">
+          <button onClick="{{cancelUpload}}" style="font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:9px;border:1px solid #D0E8E2;background:#fff;color:#4A6B62;cursor:pointer">Cancel</button>
+          <button onClick="{{confirmUpload}}" style="font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:9px;border:1px solid #1E4D40;background:#1E4D40;color:#fff;cursor:pointer">Save as Current</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- plan next month dialog -->
+  <sc-if value="{{newMonthOn}}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{cancelNewMonth}}" style="position:fixed;inset:0;background:rgba(22,46,39,.45);display:flex;align-items:center;justify-content:center;z-index:90">
+      <div onClick="{{stopClick}}" style="background:#fff;border-radius:16px;padding:22px;width:min(360px,90vw);display:flex;flex-direction:column;gap:14px;box-shadow:0 24px 64px rgba(22,46,39,.35)">
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <span style="font-family:'Poppins',sans-serif;font-weight:600;font-size:16.5px">Plan {{newMonthLabel}}</span>
+          <span style="font-size:12.5px;color:#4A6B62;line-height:1.5">Set the monthly budget and target CPL. Both stay editable until the month is archived.</span>
+        </div>
+        <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:#4A6B62">Monthly budget $
+          <input type="number" value="{{newMonthBudget}}" onChange="{{setNewBudget}}" style="box-sizing:border-box;width:100%;font-size:14px;font-weight:400;color:#162E27;padding:9px 11px;border-radius:9px;border:1px solid #D0E8E2">
+        </label>
+        <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:#4A6B62">Target CPL $
+          <input type="number" value="{{newMonthTarget}}" onChange="{{setNewTarget}}" style="box-sizing:border-box;width:100%;font-size:14px;font-weight:400;color:#162E27;padding:9px 11px;border-radius:9px;border:1px solid #D0E8E2">
+        </label>
+        <div style="display:flex;gap:8px;justify-content:flex-end;padding-top:2px">
+          <button onClick="{{cancelNewMonth}}" style="font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:9px;border:1px solid #D0E8E2;background:#fff;color:#4A6B62;cursor:pointer">Cancel</button>
+          <button onClick="{{confirmNewMonth}}" style="font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:9px;border:1px solid #1E4D40;background:#1E4D40;color:#fff;cursor:pointer">Create month</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- toast -->
+  <sc-if value="{{toastOn}}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:#162E27;color:#fff;font-size:13.5px;padding:11px 20px;border-radius:12px;box-shadow:0 8px 24px rgba(22,46,39,.3);animation:efgup .25s ease;z-index:100">{{toast}}</div>
+  </sc-if>
+
+</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;startRole&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;internal&quot;, &quot;client&quot;], &quot;default&quot;: &quot;internal&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Prototype&quot; },
+  &quot;clientAccent&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;moderate&quot;, &quot;subtle&quot;, &quot;off&quot;], &quot;default&quot;: &quot;moderate&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Branding&quot; },
+  &quot;showExplainers&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Density&quot; }
+}">
+class Component extends DCLogic {
+  state = {
+    db: null,
+    role: 'internal',
+    view: 'overview',
+    adminView: 'pipeline',
+    clientId: 'capital_transport',
+    monthKey: '2026-07',
+    expanded: {},
+    editingId: null,
+    analysing: false,
+    toast: '',
+    budgetRange: 'month',
+    confirm: null,
+    newMonth: null,
+    uploadDlg: null,
+    compareId: null
+  };
+
+  componentDidMount() {
+    import('./report-data.js').then(mod => {
+      const role = (this.props.startRole === 'client') ? 'client' : 'internal';
+      this.setState({ db: structuredClone(mod.DB), role });
+    });
+  }
+
+  // ---------- helpers ----------
+  money(n) { return '$' + Math.round(n).toLocaleString('en-AU'); }
+
+  money2(n) { return '$' + (+n).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+  client() { return this.state.db.clients.find(c => c.id === this.state.clientId) || this.state.db.clients[0]; }
+
+  monthKeys(c) { return Object.keys(c.months).sort().reverse(); }
+
+  reportKeys(c) { return this.monthKeys(c).filter(k => c.months[k].metrics); }
+
+  monthName(k) {
+    const parts = k.split('-');
+    const names = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    return names[parseInt(parts[1], 10) - 1] + ' ' + parts[0];
+  }
+
+  nextKey(k) {
+    let y = parseInt(k.split('-')[0], 10), m = parseInt(k.split('-')[1], 10) + 1;
+    if (m > 12) { m = 1; y++; }
+    return y + '-' + String(m).padStart(2, '0');
+  }
+
+  makeDel(key, fn) {
+    const armed = this.state.confirm === key;
+    return {
+      delLabel: armed ? 'Confirm' : 'Delete',
+      delStyle: { fontFamily: "'Poppins',sans-serif", fontWeight: 600, fontSize: '11px', padding: '4px 10px', borderRadius: '7px', cursor: 'pointer', flex: 'none', border: '1px solid ' + (armed ? '#C53030' : '#D0E8E2'), background: armed ? '#C53030' : '#fff', color: armed ? '#fff' : '#C53030' },
+      del: () => {
+        if (this.state.confirm === key) { clearTimeout(this._ct); this.setState({ confirm: null }); fn(); }
+        else { clearTimeout(this._ct); this.setState({ confirm: key }); this._ct = setTimeout(() => this.setState({ confirm: null }), 2600); }
+      }
+    };
+  }
+
+  effectiveMonthKey(c) {
+    const keys = this.reportKeys(c);
+    let k = (c.months[this.state.monthKey] && c.months[this.state.monthKey].metrics) ? this.state.monthKey : keys[0];
+    if (this.state.role === 'client' && c.months[k].status !== 'Published') {
+      const pub = keys.find(x => c.months[x].status === 'Published');
+      if (pub) k = pub;
+    }
+    return k;
+  }
+
+  report() { const c = this.client(); return c.months[this.effectiveMonthKey(c)]; }
+
+  showToast(msg) {
+    clearTimeout(this._tt);
+    this.setState({ toast: msg });
+    this._tt = setTimeout(() => this.setState({ toast: '' }), 2600);
+  }
+
+  chip(bg, colour, border) {
+    return { fontFamily: "'Poppins',sans-serif", fontWeight: 600, fontSize: '11px', letterSpacing: '.03em',
+      padding: '3px 10px', borderRadius: '999px', background: bg, color: colour, border: '1px solid ' + border,
+      whiteSpace: 'nowrap', display: 'inline-block' };
+  }
+
+  healthStyle(h) {
+    if (h === 'Strong') return this.chip('#1E4D40', '#fff', '#1E4D40');
+    if (h === 'On Track') return this.chip('#E6F3F0', '#1E4D40', '#D0E8E2');
+    if (h === 'Watch') return this.chip('#fff', '#4A6B62', '#4A6B62');
+    if (h === 'Needs Attention' || h === 'Needs attention') return this.chip('#fff', '#C53030', '#C53030');
+    return this.chip('#F3F8F6', '#4A6B62', '#D0E8E2');
+  }
+
+  statusStyle(s) {
+    if (s === 'Published') return this.chip('#1E4D40', '#fff', '#1E4D40');
+    if (s === 'Approved') return this.chip('#E6F3F0', '#1E4D40', '#D0E8E2');
+    if (s === 'Planned') return this.chip('#F3F8F6', '#2E6B5A', '#D0E8E2');
+    if (s === 'Archived') return this.chip('#F3F8F6', '#4A6B62', '#D0E8E2');
+    if (s === 'Current') return this.chip('#1E4D40', '#fff', '#1E4D40');
+    return this.chip('#fff', '#4A6B62', '#D0E8E2');
+  }
+
+  typeStyle(t) {
+    return t === 'Meta Dashboard' ? this.chip('#E6F3F0', '#1E4D40', '#D0E8E2') : t === 'A/B Testing' ? this.chip('#F3F8F6', '#1E4D40', '#D0E8E2') : this.chip('#fff', '#2E6B5A', '#D0E8E2');
+  }
+
+  fmtIso(iso) {
+    if (!iso) return '';
+    const p = String(iso).split('-');
+    const names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return parseInt(p[2], 10) + ' ' + names[parseInt(p[1], 10) - 1] + ' ' + p[0];
+  }
+
+  ingestText(text, name) {
+    const dlg = this.state.uploadDlg;
+    if (!dlg) return;
+    let json = null;
+    try { json = JSON.parse(text); } catch (err) {
+      this.setState({ uploadDlg: { ...dlg, fileName: name, parsed: null, error: 'That file is not valid JSON.' } });
+      return;
+    }
+    let parsed = null;
+    if (json && json.executive_summary) {
+      const es = json.executive_summary;
+      parsed = {
+        kind: 'Meta Dashboard', raw: json,
+        monthKey: String(json.reporting_start_date || '').slice(0, 7),
+        asOf: this.fmtIso(json.reporting_end_date),
+        summary: { spend: Math.round((es.total_spend_to_date || 0) * 100) / 100, leads: es.total_leads || 0, cpl: es.cost_per_lead || 0, ctr: es.average_ctr || 0, cpc: es.average_cpc || 0, days: parseInt(String(json.reporting_end_date || '0-0-0').split('-')[2], 10) || 0 }
+      };
+    } else if (json && Array.isArray(json.daily_tracker) && json.daily_tracker.length) {
+      const dt = json.daily_tracker, last = dt[dt.length - 1];
+      parsed = {
+        kind: 'Daily Tracker', raw: json,
+        monthKey: String((json.reporting_period || {}).start || '').slice(0, 7),
+        asOf: this.fmtIso((json.reporting_period || {}).end),
+        summary: { mtd: last.mtd_total || 0, remaining: last.budget_remaining || 0, days: dt.length, avg: Math.round((last.mtd_total || 0) / dt.length * 100) / 100 }
+      };
+    } else if (json && json.report_type === 'ab_testing_log') {
+      const tests = json.ab_tests || [];
+      const spend = Math.round(tests.reduce((a, t) => a + (t.total_amount_spent || 0), 0) * 100) / 100;
+      const results = tests.reduce((a, t) => a + (t.total_results || 0), 0);
+      const w = json.analysis_window || {};
+      parsed = {
+        kind: 'A/B Testing', raw: json,
+        monthKey: String(w.end_date || '').slice(0, 7),
+        asOf: this.fmtIso(w.end_date),
+        summary: { tests: (json.summary || {}).total_tests_detected || tests.length, completed: (json.summary || {}).completed_tests || 0, spend, results, avg: results ? Math.round(spend / results * 100) / 100 : 0 }
+      };
+    }
+    if (!parsed || !parsed.monthKey) {
+      this.setState({ uploadDlg: { ...dlg, fileName: name, parsed: null, error: 'Unrecognised format. Expected a Meta Ads Dashboard, Daily Budget Tracker or A/B Testing Log export.' } });
+      return;
+    }
+    this.setState({ uploadDlg: { ...dlg, type: parsed.kind, fileName: name, parsed, error: '' } });
+  }
+
+  loadSample(path) {
+    fetch(encodeURI(path)).then(r => { if (!r.ok) throw new Error('http'); return r.text(); })
+      .then(t => this.ingestText(t, path.split('/').pop()))
+      .catch(() => {
+        const dlg = this.state.uploadDlg;
+        if (dlg) this.setState({ uploadDlg: { ...dlg, error: 'Could not load the sample file.' } });
+      });
+  }
+
+  uploadSummaryText(kind, sm) {
+    if (kind === 'Daily Tracker') return this.money2(sm.mtd) + ' MTD over ' + sm.days + ' days';
+    if (kind === 'A/B Testing') return sm.tests + ' tests · ' + this.money2(sm.spend) + ' spend · ' + sm.results + ' results';
+    return this.money2(sm.spend) + ' spend · ' + sm.leads + ' leads · $' + (+sm.cpl).toFixed(2) + ' CPL';
+  }
+
+  buildAbLog(j) {
+    const clean = x => (x || '').replace(/^insufficient_data\.\s*/i, 'Not enough data yet. ');
+    const sm = j.summary || {}, w = j.analysis_window || {};
+    return {
+      target: j.target_cost_per_result || 0,
+      windowText: 'window ' + this.fmtIso(w.start_date) + ' – ' + this.fmtIso(w.end_date) + ', checked against ' + this.fmtIso(w.comparison_start_date) + ' – ' + this.fmtIso(w.comparison_end_date),
+      summary: { detected: sm.total_tests_detected || 0, active: sm.active_tests || 0, completed: sm.completed_tests || 0, gathering: sm.tests_with_insufficient_data || 0, text: sm.overall_ai_summary || '' },
+      tests: (j.ab_tests || []).map(t => ({
+        id: t.test_id, name: t.test_name, group: t.campaign_group || '', campaign: t.campaign_name || '', type: t.test_type || '',
+        status: t.status === 'completed' ? 'Complete' : 'In progress',
+        confidence: t.confidence_level ? t.confidence_level.charAt(0).toUpperCase() + t.confidence_level.slice(1) + ' confidence' : '',
+        verdict: /^clear winner/i.test(t.conclusion || '') ? 'winner' : /insufficient_data/i.test(t.conclusion || '') ? 'data' : 'none',
+        conclusion: clean(t.conclusion), next: t.recommended_next_action || '', client: t.client_friendly_summary || '', reasoning: t.reasoning || '',
+        best: t.best_performing_variable || null, worst: t.worst_performing_variable || null,
+        spend: t.total_amount_spent || 0, results: t.total_results || 0, avg: t.average_cost_per_result || 0,
+        variants: (t.testing_variables || []).map(v => ({
+          name: (v.variable_name || '').replace(/^Ad:\s*/, ''), ad: v.ad_name || '',
+          spend: v.amount_spent || 0, results: v.total_results || 0, cpr: v.cost_per_result || 0, ctr: v.ctr || 0, freq: v.frequency || 0
+        }))
+      }))
+    };
+  }
+
+  compareRows(u) {
+    const a = u.prev_summary, b = u.summary;
+    if (!a) return [];
+    const M = v => this.money2(v);
+    const C2 = v => '$' + (+v).toFixed(2);
+    const defs = u.type === 'Daily Tracker'
+      ? [['Spend month to date', 'mtd', M, 'neutral'], ['Budget remaining', 'remaining', M, 'neutral'], ['Days recorded', 'days', String, 'neutral'], ['Average daily spend', 'avg', C2, 'neutral']]
+      : u.type === 'A/B Testing'
+        ? [['Tests detected', 'tests', String, 'neutral'], ['Tests with a verdict', 'completed', String, 'up'], ['Spend analysed', 'spend', M, 'neutral'], ['Results', 'results', String, 'up'], ['Average cost per result', 'avg', C2, 'down']]
+        : [['Spend to date', 'spend', M, 'neutral'], ['Leads', 'leads', String, 'up'], ['Cost per lead', 'cpl', C2, 'down'], ['Click rate', 'ctr', v => v + '%', 'up'], ['Cost per click', 'cpc', C2, 'down'], ['Days covered', 'days', String, 'neutral']];
+    return defs.map(def => {
+      const label = def[0], key = def[1], fmt = def[2], good = def[3];
+      const av = a[key], bv = b[key];
+      if (av == null || bv == null) return { label, prev: av == null ? '—' : fmt(av), cur: bv == null ? '—' : fmt(bv), delta: '', colour: '#4A6B62' };
+      const d = Math.round((bv - av) * 100) / 100;
+      const dTxt = d === 0 ? 'No change' : (d > 0 ? '+' : '−') + ((key === 'leads' || key === 'days') ? Math.abs(d) : fmt(Math.abs(d)));
+      let colour = '#4A6B62';
+      if (d !== 0 && good === 'down') colour = d < 0 ? '#1E4D40' : '#C53030';
+      if (d !== 0 && good === 'up') colour = d > 0 ? '#1E4D40' : '#C53030';
+      return { label, prev: fmt(av), cur: fmt(bv), delta: dTxt, colour };
+    });
+  }
+
+  prioStyle(p) {
+    if (p === 'High') return this.chip('#fff', '#C53030', '#C53030');
+    if (p === 'Medium') return this.chip('#E6F3F0', '#1E4D40', '#D0E8E2');
+    return this.chip('#fff', '#4A6B62', '#D0E8E2');
+  }
+
+  campHealthStyle(h) {
+    if (h === 'strong') return this.chip('#1E4D40', '#fff', '#1E4D40');
+    if (h === 'attention') return this.chip('#fff', '#C53030', '#C53030');
+    return this.chip('#E6F3F0', '#1E4D40', '#D0E8E2');
+  }
+
+  // ---------- render ----------
+  renderVals() {
+    const S = this.state;
+    if (!S.db) return { loading: true, ready: false };
+
+    const c = this.client();
+    const mk = this.effectiveMonthKey(c);
+    const r = c.months[mk];
+    const m = r.metrics;
+    const isInternal = S.role === 'internal';
+    const accentMode = this.props.clientAccent ?? 'moderate';
+    const showExplainers = this.props.showExplainers ?? true;
+    const clientColour = accentMode === 'off' ? '#4A6B62' : c.colour;
+
+    const mkLogo = (src, alt, h) => src ? React.createElement('img', { src, alt, style: { height: h + 'px', display: 'block' } }) : null;
+    const view = (S.view === 'settings' || (!isInternal && S.view === 'admin')) ? 'overview' : S.view;
+    const nav = [
+      { key: 'overview', label: 'Overview' },
+      { key: 'campaigns', label: 'Campaigns' },
+      { key: 'budget', label: 'Budget' },
+      { key: 'tracker', label: 'Daily Tracker' },
+      { key: 'abtest', label: 'A/B Testing' },
+      { key: 'actions', label: 'Actions' },
+      { key: 'creative', label: 'Creative' },
+      { key: 'reports', label: 'Reports' }
+    ];
+
+    const navItems = nav.map(n => {
+      const on = view === n.key;
+      return {
+        label: n.label,
+        go: () => this.setState({ view: n.key }),
+        style: {
+          fontFamily: "'Poppins',sans-serif", fontWeight: on ? 600 : 500, fontSize: '13px',
+          padding: '9px 12px', borderRadius: '10px', cursor: 'pointer',
+          background: on ? '#1E4D40' : 'transparent', color: on ? '#fff' : '#D0E8E2'
+        },
+        mStyle: {
+          fontFamily: "'Poppins',sans-serif", fontWeight: 600, fontSize: '12px',
+          padding: '7px 12px', borderRadius: '999px', cursor: 'pointer',
+          border: '1px solid ' + (on ? '#1E4D40' : '#D0E8E2'),
+          background: on ? '#1E4D40' : '#fff', color: on ? '#fff' : '#1E4D40'
+        }
+      };
+    });
+
+    // pacing
+    const expected = r.days_in_month ? r.budget * r.days_elapsed / r.days_in_month : 0;
+    const pacePct = expected > 0 ? Math.round((m.spend / expected - 1) * 100) : 0;
+    const monthDone = r.days_elapsed >= r.days_in_month;
+    const paceLabel = r.budget <= 0 ? 'No budget set'
+      : monthDone ? (m.spend <= r.budget ? 'Finished on plan' : 'Finished over budget')
+      : Math.abs(pacePct) <= 3 ? 'On plan'
+      : pacePct > 0 ? 'Pacing ' + pacePct + '% ahead' : 'Pacing ' + Math.abs(pacePct) + '% behind';
+    const paceOk = monthDone ? m.spend <= r.budget : Math.abs(pacePct) <= 10;
+    const remaining = Math.max(0, r.budget - m.spend);
+    const maxBar = Math.max(r.budget, m.forecast, m.spend, 1);
+    const overBudget = m.forecast > r.budget;
+
+    const budgetMeaning = monthDone
+      ? 'The month closed at ' + this.money2(m.spend) + ' of the ' + this.money(r.budget) + ' budget.'
+      : 'By day ' + r.days_elapsed + ' we would expect about ' + this.money(expected) + ' spent. Actual spend is ' + this.money2(m.spend) + ', so the month is ' + (Math.abs(pacePct) <= 3 ? 'tracking to plan.' : pacePct > 0 ? 'running a little ahead.' : 'running a little behind.');
+    const budgetMeaning2 = monthDone ? '' : (overBudget
+      ? 'At the current rate the month ends near ' + this.money(m.forecast) + ', about ' + this.money(m.forecast - r.budget) + ' over. We will trim daily budgets if it holds.'
+      : 'At the current rate the month ends near ' + this.money(m.forecast) + ', inside budget. No change needed.');
+
+    // metric cards
+    const p = r.prev || {};
+    const pl = p.label || 'last month';
+    const D = (cur, prev, goodWhenLower, unit) => {
+      if (prev == null) return { text: 'No prior data yet', colour: '#4A6B62' };
+      const diff = cur - prev;
+      const good = goodWhenLower ? diff < 0 : diff > 0;
+      const arrow = diff === 0 ? '·' : diff > 0 ? '▲' : '▼';
+      const val = unit === '$' ? '$' + Math.abs(diff).toFixed(Math.abs(diff) < 10 && Math.abs(diff) % 1 !== 0 ? 2 : 0) : Math.abs(diff).toFixed(unit === '%' ? 1 : 0) + (unit === '%' ? ' pts' : '');
+      return { text: arrow + ' ' + val + ' v ' + pl, colour: diff === 0 ? '#4A6B62' : good ? '#2E6B5A' : '#4A6B62' };
+    };
+    const goTo = (v) => () => this.setState({ view: v });
+    const cplUnder = m.cpl <= r.target_cpl;
+    const cards = [
+      { label: 'Monthly budget', value: this.money(r.budget), delta: 'Same as ' + pl, deltaColour: '#4A6B62', meaning: 'Agreed with you at the monthly review.', tag: 'Set together', tagStyle: this.chip('#F3F8F6', '#4A6B62', '#D0E8E2'), go: goTo('budget') },
+      { label: 'Spend to date', value: this.money2(m.spend), delta: (monthDone ? 'Final' : 'Day ' + r.days_elapsed + ' of ' + r.days_in_month), deltaColour: '#4A6B62', meaning: 'How much of the budget has been used.', tag: paceOk ? 'On track' : 'Watch this', tagStyle: paceOk ? this.chip('#E6F3F0', '#1E4D40', '#D0E8E2') : this.chip('#fff', '#4A6B62', '#4A6B62'), go: goTo('budget') },
+      { label: 'Budget remaining', value: this.money2(remaining), delta: monthDone ? 'Month closed' : 'For the rest of ' + r.label.split(' ')[0], deltaColour: '#4A6B62', meaning: 'Left to spend this month.', tag: 'On track', tagStyle: this.chip('#E6F3F0', '#1E4D40', '#D0E8E2'), go: goTo('budget') },
+      { label: 'Budget pacing', value: (monthDone ? '100%' : (pacePct > 0 ? '+' : '') + pacePct + '%'), delta: monthDone ? 'Complete' : 'v where today should be', deltaColour: '#4A6B62', meaning: 'Ahead means spending faster than planned.', tag: paceLabel, tagStyle: paceOk ? this.chip('#E6F3F0', '#1E4D40', '#D0E8E2') : this.chip('#fff', '#4A6B62', '#4A6B62'), go: goTo('budget') },
+      { label: 'Total leads', value: String(m.leads), delta: D(m.leads, p.leads, false, ''), meaning: 'Enquiries your ads produced.', tag: (p.leads == null || m.leads >= p.leads * r.days_elapsed / Math.max(1, r.days_in_month)) ? 'Strong' : 'Watch this', tagStyle: (p.leads == null || m.leads >= p.leads * r.days_elapsed / Math.max(1, r.days_in_month)) ? this.chip('#1E4D40', '#fff', '#1E4D40') : this.chip('#fff', '#4A6B62', '#4A6B62'), go: goTo('campaigns') },
+      { label: 'Cost per lead', value: '$' + (+m.cpl).toFixed(2), delta: D(m.cpl, p.cpl, true, '$'), meaning: 'Average cost of each enquiry.', tag: cplUnder ? 'Under target' : 'Above target', tagStyle: cplUnder ? this.chip('#E6F3F0', '#1E4D40', '#D0E8E2') : this.chip('#fff', '#C53030', '#C53030'), go: goTo('campaigns') },
+      { label: 'Target CPL', value: '$' + (+r.target_cpl).toFixed(2), delta: 'Your goal for ' + r.label.split(' ')[0], deltaColour: '#4A6B62', meaning: 'The cost per lead we aim to beat.', tag: cplUnder ? '$' + (Math.round((r.target_cpl - m.cpl) * 100) / 100) + ' under' : '$' + (Math.round((m.cpl - r.target_cpl) * 100) / 100) + ' over', tagStyle: cplUnder ? this.chip('#1E4D40', '#fff', '#1E4D40') : this.chip('#fff', '#C53030', '#C53030'), go: goTo('campaigns') },
+      { label: 'Click rate · CTR', value: m.ctr + '%', delta: D(m.ctr, p.ctr, false, '%'), meaning: 'How often people click after seeing an ad.', tag: (p.ctr == null || m.ctr >= p.ctr) ? 'On track' : 'Watch this', tagStyle: (p.ctr == null || m.ctr >= p.ctr) ? this.chip('#E6F3F0', '#1E4D40', '#D0E8E2') : this.chip('#fff', '#4A6B62', '#4A6B62'), go: goTo('creative') },
+      { label: 'Cost per click', value: '$' + m.cpc.toFixed(2), delta: D(m.cpc, p.cpc, true, '$'), meaning: 'What each visit to your form costs.', tag: (p.cpc == null || m.cpc <= p.cpc) ? 'On track' : 'Watch this', tagStyle: (p.cpc == null || m.cpc <= p.cpc) ? this.chip('#E6F3F0', '#1E4D40', '#D0E8E2') : this.chip('#fff', '#4A6B62', '#4A6B62'), go: goTo('creative') },
+      { label: 'Conversion rate', value: m.conv + '%', delta: D(m.conv, p.conv, false, '%'), meaning: 'Clicks that turn into enquiries.', tag: (p.conv == null || m.conv >= p.conv) ? 'On track' : 'Watch this', tagStyle: (p.conv == null || m.conv >= p.conv) ? this.chip('#E6F3F0', '#1E4D40', '#D0E8E2') : this.chip('#fff', '#4A6B62', '#4A6B62'), go: goTo('campaigns') }
+    ].map(card => {
+      if (typeof card.delta === 'object') { card.deltaColour = card.delta.colour; card.delta = card.delta.text; }
+      return card;
+    });
+
+    // CPL chart
+    const trendMax = Math.max(1, r.target_cpl, ...r.cpl_trend.map(t => t.val));
+    const chartH = 78;
+    const cplBars = r.cpl_trend.map(t => ({
+      label: t.label, val: t.val,
+      h: Math.max(8, Math.round(t.val / trendMax * chartH)),
+      bg: t.val <= r.target_cpl ? '#1E4D40' : '#4A6B62'
+    }));
+    const targetLineBottom = Math.round(r.target_cpl / trendMax * chartH) + 16;
+
+    // campaigns
+    const sorted = [...r.campaigns].sort((a, b) => a.cpl - b.cpl);
+    const best = sorted[0] || { name: 'No campaigns yet', cpl: 0 };
+    const worst = sorted[sorted.length - 1] || { name: 'No campaigns yet', cpl: 0 };
+    const campaigns = r.campaigns.map(cp => {
+      const key = c.id + mk + cp.id;
+      const expanded = !!S.expanded[key];
+      return { ...cp,
+        spendText: this.money2(cp.spend), cpcText: '$' + cp.cpc.toFixed(2), cplText: '$' + (+cp.cpl).toFixed(2),
+        cplColour: cp.cpl > r.target_cpl ? '#C53030' : '#162E27',
+        statusStyle: cp.status === 'Active' ? this.chip('#E6F3F0', '#1E4D40', '#D0E8E2') : this.chip('#F3F8F6', '#4A6B62', '#D0E8E2'),
+        healthStyle: this.campHealthStyle(cp.health),
+        expanded, chev: expanded ? '▴' : '▾',
+        toggle: () => this.setState(s => ({ expanded: { ...s.expanded, [key]: !s.expanded[key] } }))
+      };
+    });
+
+    const audiences = r.audiences.map(a => ({ ...a, spendText: this.money2(a.spend), cplText: '$' + (+a.cpl).toFixed(2), cplColour: a.cpl > r.target_cpl ? '#C53030' : '#162E27' }));
+
+    // budget bars
+    const w = v => Math.round(v / maxBar * 100) + '%';
+    const budgetBars = [
+      { label: 'Monthly budget', valText: this.money(r.budget), w: w(r.budget), bg: '#D0E8E2', border: 'none', sub: 'Agreed for ' + r.label + '.' },
+      { label: 'Expected by today', valText: this.money2(expected), w: w(expected), bg: '#4A6B62', border: 'none', sub: monthDone ? 'The month is complete.' : 'Where spend should sit at day ' + r.days_elapsed + ' of ' + r.days_in_month + '.' },
+      { label: 'Actual spend', valText: this.money2(m.spend), w: w(m.spend), bg: '#1E4D40', border: 'none', sub: paceLabel + '.' },
+      { label: 'Forecast month end', valText: this.money(m.forecast), w: w(m.forecast), bg: overBudget ? '#fff' : '#E6F3F0', border: overBudget ? '2px dashed #C53030' : '2px dashed #2E6B5A', sub: overBudget ? 'About ' + this.money(m.forecast - r.budget) + ' over if nothing changes.' : 'Lands inside budget at the current rate.' }
+    ];
+
+    // actions board
+    const acts = r.actions.filter(a => isInternal || a.keep);
+    const mkItems = list => list.map(it => ({ ...it,
+      prioStyle: this.prioStyle(it.priority),
+      cardStyle: { background: it.keep ? '#fff' : '#F3F8F6', opacity: it.keep ? 1 : .55, border: '1px solid ' + (it.status === 'urgent' ? '#C53030' : '#D0E8E2'), borderRadius: '14px', padding: '14px 15px', display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: '0 1px 2px rgba(22,46,39,.05)' },
+      actLabel: it.status === 'done' ? 'Reopen' : 'Mark done',
+      act: () => { it.ref.status = it.status === 'done' ? 'week' : 'done'; it.ref.due = it.ref.status === 'done' ? 'Done today' : it.due; this.setState({ db: S.db }); this.showToast(it.ref.status === 'done' ? 'Nice. Marked as completed.' : 'Reopened and moved to this week.'); }
+    }));
+    const withRef = acts.map(a => ({ ...a, ref: a }));
+    const actionCols = [
+      { key: 'urgent', label: 'Urgent', headStyle: this.chip('#fff', '#C53030', '#C53030') },
+      { key: 'week', label: 'This week', headStyle: this.chip('#E6F3F0', '#1E4D40', '#D0E8E2') },
+      { key: 'monitor', label: 'Monitor', headStyle: this.chip('#fff', '#4A6B62', '#D0E8E2') },
+      { key: 'done', label: 'Completed', headStyle: this.chip('#1E4D40', '#fff', '#1E4D40') }
+    ].map(col => {
+      const items = mkItems(withRef.filter(a => a.status === col.key));
+      return { ...col, items, count: items.length + (items.length === 1 ? ' item' : ' items') };
+    });
+
+    // creatives
+    const tagStyleFor = t => t === 'best' ? this.chip('#1E4D40', '#fff', '#1E4D40') : t === 'fatigue' ? this.chip('#fff', '#C53030', '#C53030') : this.chip('#F3F8F6', '#4A6B62', '#D0E8E2');
+    const creatives = r.creatives.map(cr => ({ ...cr,
+      tagStyle: { ...tagStyleFor(cr.tag), alignSelf: 'flex-start' },
+      canAdd: cr.tag === 'fatigue' && isInternal,
+      addLabel: r.actions.some(a => a._auto === cr.id) ? 'Added to plan ✓' : 'Add refresh to action plan',
+      addAction: () => {
+        if (r.actions.some(a => a._auto === cr.id)) { this.showToast('Already on the plan.'); return; }
+        r.actions.push({ id: 'auto_' + cr.id, _auto: cr.id, title: 'Refresh the ' + cr.name.toLowerCase(), why: cr.note, owner: 'EFG · ' + c.manager.split(' ')[0], priority: 'Medium', due: 'This week', status: 'week', impact: 'Fresh creative before performance dips.', keep: true });
+        this.setState({ db: S.db }); this.showToast('Added to the action plan.');
+      }
+    }));
+
+    // reports rows
+    const reportRows = this.monthKeys(c)
+      .filter(k => isInternal || c.months[k].status === 'Published')
+      .map(k => { const mo = c.months[k]; const planned = !mo.metrics; return {
+        label: mo.label, status: mo.status, statusStyle: this.statusStyle(mo.status),
+        updated: planned ? 'Budget planned ahead' : mo.updated,
+        mini: planned ? this.money(mo.budget) + ' budget · $' + mo.target_cpl + ' target CPL' : mo.metrics.leads + ' leads · $' + mo.metrics.cpl + ' CPL · ' + this.money(mo.metrics.spend) + ' spent',
+        openable: !planned, planned,
+        open: () => this.setState({ monthKey: k, view: 'overview' }),
+        goPlan: () => this.setState({ view: 'budget', budgetRange: 'upcoming' })
+      };});
+
+    // month + client selectors
+    const monthOptions = this.reportKeys(c)
+      .filter(k => isInternal || c.months[k].status === 'Published')
+      .map(k => ({ key: k, text: c.months[k].label + (isInternal ? ' · ' + c.months[k].status : '') }));
+    const clientOptions = S.db.clients.map(cl => ({ id: cl.id, name: cl.name }));
+
+    // admin pipeline
+    const pk = c.months[S.monthKey] ? S.monthKey : mk;
+    const pipeRows = S.db.clients.map(cl => {
+      const mo = cl.months[pk] || cl.months[this.monthKeys(cl)[0]];
+      const delParts = this.makeDel('client_' + cl.id, () => {
+        S.db.clients = S.db.clients.filter(x => x.id !== cl.id);
+        const first = S.db.clients[0];
+        this.setState({ db: S.db, clientId: S.clientId === cl.id ? first.id : S.clientId });
+        this.showToast(cl.name + ' removed.');
+      });
+      return {
+        name: cl.name, initials: cl.initials, colour: accentMode === 'off' ? '#4A6B62' : cl.colour, industry: cl.industry,
+        logo: cl.logo || '', hasLogo: !!cl.logo, noLogo: !cl.logo, logoImg: mkLogo(cl.logo, cl.name, 16),
+        budget: this.money(mo.budget), target: '$' + mo.target_cpl, updated: mo.updated || 'Planned ahead', status: mo.status,
+        statusStyle: this.statusStyle(mo.status),
+        review: () => this.setState({ clientId: cl.id, view: 'admin', adminView: 'desk' }),
+        openDash: () => this.setState({ clientId: cl.id, view: 'overview' }),
+        canDelete: S.db.clients.length > 1, ...delParts
+      };
+    });
+    const count = st => S.db.clients.filter(cl => (cl.months[pk] || {}).status === st).length;
+    const pipeStats = [
+      { value: S.db.clients.length, label: 'clients this month', colour: '#162E27' },
+      { value: count('Published'), label: 'published', colour: '#1E4D40' },
+      { value: count('Approved'), label: 'approved, not published', colour: '#2E6B5A' },
+      { value: count('Draft'), label: 'in draft', colour: '#C53030' }
+    ];
+
+    // desk
+    const deskActions = r.actions.map(a => {
+      const editing = S.editingId === a.id;
+      const delParts = this.makeDel('act_' + c.id + mk + a.id, () => {
+        r.actions = r.actions.filter(x => x !== a);
+        this.setState({ db: S.db }); this.showToast('Action item deleted.');
+      });
+      return { ...delParts,
+        title: a.title, editing, notEditing: !editing,
+        editLabel: editing ? 'Done' : 'Edit',
+        rowStyle: { display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', borderRadius: '10px', background: a.keep ? '#F3F8F6' : '#fff', border: '1px solid #E6F3F0', opacity: a.keep ? 1 : .55 },
+        setTitle: e => { a.title = e.target.value; this.setState({ db: S.db }); },
+        edit: () => this.setState({ editingId: editing ? null : a.id }),
+        toggleKeep: () => { a.keep = !a.keep; this.setState({ db: S.db }); },
+        keepLabel: a.keep ? 'Keep ✓' : 'Dropped',
+        keepStyle: { fontFamily: "'Poppins',sans-serif", fontWeight: 600, fontSize: '11px', padding: '4px 10px', borderRadius: '7px', cursor: 'pointer', flex: 'none', border: '1px solid ' + (a.keep ? '#1E4D40' : '#D0E8E2'), background: a.keep ? '#1E4D40' : '#fff', color: a.keep ? '#fff' : '#4A6B62' }
+      };
+    });
+    const deskNotes = r.notes.map(n => ({
+      ...this.makeDel('note_' + c.id + mk + (n.id || ''), () => {
+        r.notes = r.notes.filter(x => x !== n);
+        this.setState({ db: S.db }); this.showToast('Note deleted.');
+      }),
+      text: n.text,
+      setText: e => { n.text = e.target.value; this.setState({ db: S.db }); },
+      toggleVis: () => { n.visible = !n.visible; this.setState({ db: S.db }); },
+      visLabel: n.visible ? 'Visible to client' : 'Internal only',
+      visStyle: { alignSelf: 'flex-start', fontFamily: "'Poppins',sans-serif", fontWeight: 600, fontSize: '10.5px', padding: '3px 10px', borderRadius: '999px', cursor: 'pointer', border: '1px solid ' + (n.visible ? '#D0E8E2' : '#162E27'), background: n.visible ? '#E6F3F0' : '#162E27', color: n.visible ? '#1E4D40' : '#D0E8E2' }
+    }));
+
+    // budget ranges, months and client CRUD
+    const histAll = this.reportKeys(c).filter(k => isInternal || c.months[k].status === 'Published');
+    const rangeKeys = S.budgetRange === 'quarter' ? histAll.slice(0, 3) : histAll;
+    const historyRows = rangeKeys.map(k => {
+      const mo = c.months[k]; const mm = mo.metrics;
+      const done = mo.days_elapsed >= mo.days_in_month;
+      const over = mm.spend > mo.budget;
+      const cplOk = mm.cpl <= mo.target_cpl;
+      return {
+        label: mo.label,
+        pct: (mo.budget > 0 ? Math.min(100, Math.round(mm.spend / mo.budget * 100)) : 0) + '%',
+        barBg: over ? '#C53030' : '#1E4D40',
+        spendOf: this.money2(mm.spend) + ' of ' + this.money(mo.budget),
+        leads: mm.leads + (mm.leads === 1 ? ' lead' : ' leads'),
+        stateChip: done ? (over ? 'Over budget' : 'On plan') : 'In progress',
+        stateStyle: done ? (over ? this.chip('#fff', '#C53030', '#C53030') : this.chip('#E6F3F0', '#1E4D40', '#D0E8E2')) : this.chip('#fff', '#4A6B62', '#D0E8E2'),
+        cplChip: '$' + mm.cpl + ' CPL v $' + mo.target_cpl + ' target',
+        cplStyle: cplOk ? this.chip('#E6F3F0', '#1E4D40', '#D0E8E2') : this.chip('#fff', '#C53030', '#C53030'),
+        open: () => this.setState({ monthKey: k, budgetRange: 'month' })
+      };
+    });
+    const totB = rangeKeys.reduce((s, k) => s + c.months[k].budget, 0);
+    const totS = rangeKeys.reduce((s, k) => s + c.months[k].metrics.spend, 0);
+    const totL = rangeKeys.reduce((s, k) => s + c.months[k].metrics.leads, 0);
+    const rangeStats = [
+      { value: this.money(totB), label: 'total budget', colour: '#162E27' },
+      { value: this.money2(totS), label: 'total spent', colour: '#1E4D40' },
+      { value: String(totL), label: 'total leads', colour: '#162E27' },
+      { value: totL > 0 ? '$' + (totS / totL).toFixed(2) : '$0.00', label: 'average CPL', colour: '#1E4D40' }
+    ];
+    const rangeCaption = rangeKeys.length
+      ? rangeKeys.length + ' reported month' + (rangeKeys.length === 1 ? '' : 's') + ' · ' + c.months[rangeKeys[rangeKeys.length - 1]].label + ' to ' + c.months[rangeKeys[0]].label + (rangeKeys.some(k => c.months[k].days_elapsed < c.months[k].days_in_month) ? ' · includes the current month so far' : '')
+      : 'No reported months yet';
+    const plannedKeys = this.monthKeys(c).filter(k => !c.months[k].metrics).sort();
+    const upcomingRows = plannedKeys.map(k => {
+      const mo = c.months[k];
+      return {
+        label: mo.label, budgetText: this.money(mo.budget), targetText: '$' + mo.target_cpl,
+        budget: mo.budget, target: mo.target_cpl, editable: isInternal, readonly: !isInternal,
+        setBudget: e => { const v = parseInt(e.target.value, 10); if (!isNaN(v) && v >= 0) { mo.budget = v; this.setState({ db: S.db }); } },
+        setTarget: e => { const v = parseFloat(e.target.value); if (!isNaN(v) && v >= 0) { mo.target_cpl = Math.round(v * 100) / 100; this.setState({ db: S.db }); } },
+        ...this.makeDel('pm_' + c.id + k, () => { delete c.months[k]; this.setState({ db: S.db }); this.showToast(mo.label + ' plan removed.'); })
+      };
+    });
+    const rangeChips = [
+      { key: 'month', label: 'This month' }, { key: 'quarter', label: 'Last 3 months' },
+      { key: 'history', label: 'All history' }, { key: 'upcoming', label: 'Upcoming' }
+    ].map(o => ({
+      label: o.label,
+      go: () => this.setState({ budgetRange: o.key }),
+      style: { fontFamily: "'Poppins',sans-serif", fontWeight: 600, fontSize: '12px', padding: '7px 14px', borderRadius: '999px', cursor: 'pointer', border: '1px solid ' + (S.budgetRange === o.key ? '#1E4D40' : '#D0E8E2'), background: S.budgetRange === o.key ? '#1E4D40' : '#fff', color: S.budgetRange === o.key ? '#fff' : '#1E4D40' }
+    }));
+    const budgetSubtitle = S.budgetRange === 'month' ? r.label + ' · Day ' + r.days_elapsed + ' of ' + r.days_in_month + ' · ' + paceLabel
+      : S.budgetRange === 'quarter' ? 'Your last three reported months side by side'
+      : S.budgetRange === 'history' ? 'Every month EFG has reported for you'
+      : 'Budgets planned ahead. Reporting starts when the month begins.';
+    const createMonth = () => {
+      const latest = this.monthKeys(c)[0];
+      const nk = this.nextKey(latest);
+      const src = c.months[latest];
+      this.setState({ newMonth: { key: nk, budget: src.budget || 0, target: src.target_cpl || 0 } });
+    };
+    const deskMonths = this.monthKeys(c).map(k => {
+      const mo = c.months[k];
+      const openable = !!mo.metrics;
+      const deletable = (mo.status === 'Draft' || mo.status === 'Planned') && !(openable && this.reportKeys(c).length === 1);
+      return {
+        label: mo.label, status: mo.status, statusStyle: this.statusStyle(mo.status), openable, deletable,
+        open: () => this.setState({ monthKey: k }),
+        ...this.makeDel('m_' + c.id + k, () => {
+          delete c.months[k];
+          const rk = this.reportKeys(c);
+          this.setState({ db: S.db, monthKey: rk[0] || S.monthKey });
+          this.showToast(mo.label + ' deleted.');
+        })
+      };
+    });
+    const addClient = () => {
+      const id = 'client_' + Date.now();
+      S.db.clients.push({
+        id, name: 'New client', initials: 'NC', colour: '#1E4D40', industry: 'Industry', objective: 'Lead generation', manager: 'Unassigned', currency: 'AUD',
+        months: {
+          '2026-07': { label: 'July 2026', status: 'Draft', updated: 'Not yet generated', days_elapsed: 6, days_in_month: 31, budget: 0, target_cpl: 0,
+            summary: { health: 'Draft', text: 'No analysis yet. Set the monthly budget and target CPL, connect the ad account, then run the first analysis.', recommendation: 'Run the first analysis once the ad account is connected.', pills: [] },
+            metrics: { spend: 0, leads: 0, cpl: 0, ctr: 0, cpc: 0, conv: 0, forecast: 0 }, prev: null, cpl_trend: [],
+            campaigns: [], creatives: [], audiences: [], actions: [], changed: [], attention: [], working: [], notes: [] },
+          '2026-08': { label: 'August 2026', status: 'Planned', budget: 0, target_cpl: 0 }
+        }
+      });
+      this.setState({ db: S.db, clientId: id, view: 'admin', adminView: 'settings' });
+      this.showToast('New client created. Fill in their details.');
+    };
+    const uploadRows = (c.report_uploads || []).map(u => ({
+      type: u.type, typeStyle: this.typeStyle(u.type),
+      asOf: u.as_of, ver: 'v' + u.version, file: u.file,
+      status: u.status, statusStyle: this.statusStyle(u.status),
+      sumText: this.uploadSummaryText(u.type, u.summary),
+      canCompare: !!u.prev_summary,
+      compareOn: S.compareId === u.id,
+      compareLabel: S.compareId === u.id ? 'Hide comparison' : 'Compare',
+      compareNote: 'v' + (u.version - 1) + ' → v' + u.version,
+      compareRows: this.compareRows(u),
+      toggleCompare: () => this.setState({ compareId: S.compareId === u.id ? null : u.id })
+    }));
+    // daily tracker + ab tests
+    const trackerAll = r.tracker || [];
+    const hasTracker = trackerAll.length > 0;
+    const dailyTarget = r.days_in_month ? r.budget / r.days_in_month : 0;
+    const maxDaily = trackerAll.reduce((mx, d) => Math.max(mx, d.daily_total), 1);
+    const trackerRow = d => {
+      const pt = d.full_date ? this.fmtIso(d.full_date).split(' ') : null;
+      return {
+        day: pt ? pt[0] + ' ' + pt[1] : 'Day ' + d.date,
+        vic: this.money2(d.vic), nsw: this.money2(d.nsw), qld: this.money2(d.qld), sa: this.money2(d.sa), wa: this.money2(d.wa),
+        boost: this.money2(d.boost_spike), test: this.money2(d.test),
+        total: this.money2(d.daily_total), mtd: this.money2(d.mtd_total), left: this.money2(d.budget_remaining),
+        pct: Math.min(100, Math.round(d.daily_total / maxDaily * 100))
+      };
+    };
+    const trackerRows = trackerAll.map(trackerRow);
+    const trackerRecent = trackerAll.slice(-7).map(trackerRow);
+    const tLast = trackerAll[trackerAll.length - 1] || {};
+    const trackerStats = [
+      { label: 'Spend month to date', value: hasTracker ? this.money2(tLast.mtd_total) : '—' },
+      { label: 'Budget remaining', value: hasTracker ? this.money2(tLast.budget_remaining) : '—' },
+      { label: 'Average daily spend', value: hasTracker ? this.money2(tLast.mtd_total / trackerAll.length) : '—' },
+      { label: 'Planned daily budget', value: this.money2(dailyTarget) },
+      { label: 'Days recorded', value: String(trackerAll.length) }
+    ];
+    const abLog = r.ab_log || null;
+    const abTests = (abLog ? abLog.tests : []).map(t => {
+      const maxCpr = t.variants.reduce((mx, v) => Math.max(mx, v.cpr), 0) || 1;
+      return {
+        name: t.name,
+        meta: [t.group, t.campaign].filter(Boolean).join(' · ') + (t.confidence ? ' · ' + t.confidence : ''),
+        status: t.status,
+        statusStyle: t.status === 'Complete' ? this.chip('#E6F3F0', '#1E4D40', '#D0E8E2') : this.chip('#1E4D40', '#fff', '#1E4D40'),
+        verdict: t.verdict === 'winner' ? 'Winner found' : t.verdict === 'data' ? 'Needs more data' : 'No clear winner',
+        verdictStyle: t.verdict === 'winner' ? this.chip('#1E4D40', '#fff', '#1E4D40') : t.verdict === 'data' ? this.chip('#fff', '#4A6B62', '#4A6B62') : this.chip('#F3F8F6', '#4A6B62', '#D0E8E2'),
+        clientOn: !!t.client && t.client !== t.conclusion,
+        client: t.client,
+        conclusion: t.conclusion, next: t.next, reasoning: t.reasoning,
+        totals: 'Test total · ' + this.money2(t.spend) + ' spend · ' + t.results + ' results · $' + (+t.avg).toFixed(2) + ' average cost per result',
+        hasVariants: t.variants.length > 0,
+        variants: t.variants.map(v => {
+          const isBest = !!t.best && v.ad === t.best;
+          const isWorst = !!t.worst && v.ad === t.worst && t.variants.length > 1 && !isBest;
+          return {
+            name: v.name, sub: v.ad, subOn: !!v.ad && v.ad !== v.name,
+            cpr: '$' + (+v.cpr).toFixed(2), spend: this.money2(v.spend), results: String(v.results),
+            ctr: v.ctr + '%', freq: (+v.freq).toFixed(1),
+            barPct: Math.max(6, Math.round(v.cpr / maxCpr * 100)),
+            barColour: isBest ? '#1E4D40' : '#A7CCC1',
+            tagOn: isBest || isWorst,
+            tag: isBest ? (t.verdict === 'winner' ? 'Winner' : 'Lowest cost') : 'Highest cost',
+            tagStyle: isBest
+              ? (t.verdict === 'winner' ? this.chip('#1E4D40', '#fff', '#1E4D40') : this.chip('#E6F3F0', '#1E4D40', '#D0E8E2'))
+              : { fontFamily: "'Poppins',sans-serif", fontWeight: 600, fontSize: '10.5px', color: '#C53030' }
+          };
+        })
+      };
+    });
+    const abStats = abLog ? [
+      { label: 'Tests detected', value: String(abLog.summary.detected) },
+      { label: 'With a verdict', value: String(abLog.summary.completed) },
+      { label: 'Still gathering data', value: String(abLog.summary.gathering) },
+      { label: 'Target cost per result', value: '$' + (+abLog.target).toFixed(2) }
+    ] : [];
+    const settingsHistory = this.monthKeys(c).map(k => {
+      const mo = c.months[k];
+      const mm = mo.metrics;
+      const done = mm && mo.days_elapsed >= mo.days_in_month;
+      const bs = !mm ? 'Planned' : (k === this.reportKeys(c)[0] ? 'Published' : 'Archived');
+      return {
+        label: mo.label,
+        budgetVal: mo.budget, targetVal: mo.target_cpl,
+        budgetText: this.money(mo.budget), targetText: '$' + mo.target_cpl,
+        editable: bs !== 'Archived', locked: bs === 'Archived',
+        setBudget: e => { const v = parseInt(e.target.value, 10); if (!isNaN(v) && v >= 0) { mo.budget = v; this.setState({ db: S.db }); } },
+        setTarget: e => { const v = parseFloat(e.target.value); if (!isNaN(v) && v >= 0) { mo.target_cpl = Math.round(v * 100) / 100; this.setState({ db: S.db }); } },
+        resultText: !mm ? 'Planned ahead' : done ? this.money2(mm.spend) + ' spent · ' + mm.leads + ' leads · $' + (+mm.cpl).toFixed(2) + ' CPL' : 'In progress · ' + this.money2(mm.spend) + ' so far',
+        status: bs, statusStyle: this.statusStyle(bs),
+        openable: !!mm,
+        open: () => this.setState({ monthKey: k, view: 'overview' }),
+        deletable: bs === 'Planned',
+        ...this.makeDel('sh_' + c.id + k, () => {
+          delete c.months[k];
+          const rk = this.reportKeys(c);
+          this.setState({ db: S.db, monthKey: rk.includes(S.monthKey) ? S.monthKey : (rk[0] || S.monthKey) });
+          this.showToast(mo.label + ' removed.');
+        })
+      };
+    });
+    const settingsDel = this.makeDel('sdel_' + c.id, () => {
+      S.db.clients = S.db.clients.filter(x => x.id !== c.id);
+      this.setState({ db: S.db, clientId: S.db.clients[0].id, view: 'admin', adminView: 'pipeline' });
+      this.showToast(c.name + ' removed.');
+    });
+
+    const wf = (name) => ({ fontFamily: "'Poppins',sans-serif", fontWeight: 600, fontSize: '12px', padding: '3px 10px', borderRadius: '999px', border: '1px solid ' + (r.status === name ? '#1E4D40' : '#E6F3F0'), background: r.status === name ? '#1E4D40' : '#fff', color: r.status === name ? '#fff' : '#4A6B62' });
+
+    const setStatus = st => () => { r.status = st; this.setState({ db: S.db }); this.showToast(st === 'Published' ? 'Published. ' + c.name + ' can now see ' + r.label + '.' : 'Report marked as ' + st.toLowerCase() + '.'); };
+
+    const tabStyle = on => ({ fontFamily: "'Poppins',sans-serif", fontWeight: 600, fontSize: '12.5px', padding: '8px 14px', borderRadius: '10px', cursor: 'pointer', border: '1px solid ' + (on ? '#1E4D40' : '#D0E8E2'), background: on ? '#1E4D40' : '#fff', color: on ? '#fff' : '#1E4D40' });
+
+    const notes = r.notes.filter(n => isInternal || n.visible).map(n => ({ text: n.text, internal: !n.visible }));
+
+    return {
+      loading: false, ready: true,
+      isInternal, isClientRole: !isInternal, notAdmin: view !== 'admin',
+      vOverview: view === 'overview', vCampaigns: view === 'campaigns', vBudget: view === 'budget',
+      vActions: view === 'actions', vCreative: view === 'creative', vReports: view === 'reports',
+      vTracker: view === 'tracker', vAbtest: view === 'abtest',
+      hasTracker, noTracker: !hasTracker, trackerRows, trackerRecent, trackerStats,
+      planPct: Math.min(100, Math.round(dailyTarget / maxDaily * 100)),
+      trackerMoreOn: trackerAll.length > 7, trackerMoreLabel: 'View all ' + trackerAll.length + ' days',
+      goTracker: e => { if (e && e.preventDefault) e.preventDefault(); this.setState({ view: 'tracker' }); },
+      dailyTargetText: this.money2(dailyTarget),
+      trackerAsOf: hasTracker ? trackerRecent[trackerRecent.length - 1].day : '',
+      abTests, noTests: abTests.length === 0, hasAb: abTests.length > 0,
+      abStats, abSummaryText: abLog ? abLog.summary.text : '',
+      abWindowText: abLog ? 'From the A/B Testing Log upload · ' + abLog.windowText : 'What we are testing, what is winning, and what happens next.',
+      vAdmin: view === 'admin' && isInternal,
+      vPipeline: S.adminView === 'pipeline', vDesk: S.adminView === 'desk', vCSettings: S.adminView === 'settings',
+
+      clientId: c.id, clientName: c.name, clientInitials: c.initials, clientColour,
+      clientLogo: c.logo || '', hasLogo: !!c.logo, noLogo: !c.logo,
+      logoImgTopbar: mkLogo(c.logo, c.name, 26), logoImgHeader: mkLogo(c.logo, c.name, 36), logoImgDesk: mkLogo(c.logo, c.name, 22),
+      deskContact: c.contact ? 'Client contact · ' + c.contact + (c.contact_role ? ', ' + c.contact_role : '') : 'What the client will see',
+      contactVal: c.contact || '', contactRoleVal: c.contact_role || '',
+      setContact: e => { c.contact = e.target.value; this.setState({ db: S.db }); },
+      setContactRole: e => { c.contact_role = e.target.value; this.setState({ db: S.db }); },
+      clientMeta: c.industry + ' · ' + c.objective + ' · Managed by ' + c.manager,
+      managerName: c.manager,
+      monthKey: mk, monthLabel: r.label, updated: r.updated,
+      reportStatus: r.status, statusChipStyle: this.statusStyle(r.status),
+      healthLabel: r.summary.health, healthChipStyle: this.healthStyle(r.summary.health),
+      showDraftBanner: isInternal && view !== 'admin' && r.status !== 'Published',
+
+      navItems, monthOptions, clientOptions,
+      setClient: e => this.setState({ clientId: e.target.value, monthKey: '2026-07', expanded: {} }),
+      setMonth: e => this.setState({ monthKey: e.target.value, expanded: {} }),
+      goActions: () => this.setState({ view: 'actions' }),
+      goBudget: () => this.setState({ view: 'budget' }),
+      goOverview: () => this.setState({ view: 'overview' }),
+      goAdmin: () => this.setState({ view: 'admin' }),
+      goPipeline: () => this.setState({ adminView: 'pipeline' }),
+      goDesk: () => this.setState({ view: 'admin', adminView: 'desk' }),
+      goCSettings: () => this.setState({ view: 'admin', adminView: 'settings' }),
+      viewAsClient: () => { this.setState({ role: 'client', view: 'overview' }); this.showToast('Viewing as ' + c.name + '. Internal details are hidden.'); },
+      backToInternal: () => this.setState({ role: 'internal' }),
+      exportPdf: () => window.print(),
+      adminBtnStyle: tabStyle(view === 'admin'),
+      pipeTabStyle: tabStyle(S.adminView === 'pipeline'),
+      deskTabStyle: tabStyle(S.adminView === 'desk'),
+      csTabStyle: tabStyle(S.adminView === 'settings'),
+
+      uploadRows, noUploads: uploadRows.length === 0,
+      openUpload: () => this.setState({ uploadDlg: { type: 'Meta Dashboard', fileName: '', parsed: null, error: '' } }),
+      uploadDlgOn: !!S.uploadDlg,
+      uploadTypes: ['Meta Dashboard', 'Daily Tracker', 'A/B Testing'].map(t => ({
+        label: t,
+        pick: () => this.setState({ uploadDlg: { ...S.uploadDlg, type: t } }),
+        style: { fontFamily: "'Poppins',sans-serif", fontWeight: 600, fontSize: '12px', padding: '7px 13px', borderRadius: '999px', cursor: 'pointer',
+          border: '1px solid ' + (S.uploadDlg && S.uploadDlg.type === t ? '#1E4D40' : '#D0E8E2'),
+          background: S.uploadDlg && S.uploadDlg.type === t ? '#1E4D40' : '#fff',
+          color: S.uploadDlg && S.uploadDlg.type === t ? '#fff' : '#1E4D40' }
+      })),
+      onUploadFile: e => { const f = e.target.files && e.target.files[0]; if (f) { const rd = new FileReader(); rd.onload = () => this.ingestText(String(rd.result), f.name); rd.readAsText(f); } },
+      sampleMeta: () => this.loadSample('uploads/Capital_Transport_Meta_Ads_Dashboard_July2026_MTD_2026-07-05.json'),
+      sampleTracker: () => this.loadSample('uploads/Capital_Transport_Daily_Budget_Tracker_July2026_2026-07-06.json'),
+      sampleAb: () => this.loadSample('uploads/CT A-B Testing Log to 6 Jul 2026.json'),
+      uploadParsedOn: !!(S.uploadDlg && S.uploadDlg.parsed),
+      uploadFileName: S.uploadDlg ? S.uploadDlg.fileName : '',
+      uploadParsedText: (S.uploadDlg && S.uploadDlg.parsed)
+        ? (S.uploadDlg.parsed.kind + ' · data to ' + S.uploadDlg.parsed.asOf + ' · ' + this.uploadSummaryText(S.uploadDlg.parsed.kind, S.uploadDlg.parsed.summary))
+        : '',
+      uploadErrOn: !!(S.uploadDlg && S.uploadDlg.error), uploadErr: S.uploadDlg ? S.uploadDlg.error : '',
+      cancelUpload: () => this.setState({ uploadDlg: null }),
+      confirmUpload: () => {
+        const dlg = S.uploadDlg;
+        if (!dlg || !dlg.parsed) { this.showToast('Choose a JSON export first.'); return; }
+        const pd = dlg.parsed;
+        const ups = c.report_uploads = c.report_uploads || [];
+        const prevCur = ups.find(u => u.type === pd.kind && u.status === 'Current');
+        if (prevCur) prevCur.status = 'Archived';
+        const entry = { id: 'u_' + Date.now(), type: pd.kind, as_of: pd.asOf, uploaded: 'Just now', file: dlg.fileName, status: 'Current',
+          version: prevCur ? prevCur.version + 1 : 1, summary: pd.summary, prev_summary: prevCur ? prevCur.summary : null };
+        ups.unshift(entry);
+        const mk = pd.monthKey;
+        if (!c.months[mk]) c.months[mk] = { label: this.monthName(mk), status: 'Draft', updated: 'From upload', days_elapsed: pd.summary.days || 0, days_in_month: 31, budget: 0, target_cpl: 0,
+          summary: { health: 'Draft', text: 'Generated from the first upload. Add the narrative before publishing.', recommendation: '', pills: [] },
+          metrics: { spend: 0, leads: 0, cpl: 0, ctr: 0, cpc: 0, conv: 0, forecast: 0 }, prev: null, cpl_trend: [],
+          campaigns: [], creatives: [], audiences: [], actions: [], changed: [], attention: [], working: [], notes: [] };
+        const mo = c.months[mk];
+        if (pd.kind === 'Meta Dashboard') {
+          const j = pd.raw, es = j.executive_summary, bp = j.budget_pacing || {};
+          if (es.monthly_budget) mo.budget = Math.round(es.monthly_budget);
+          if (j.target_cpl) mo.target_cpl = j.target_cpl;
+          mo.days_elapsed = pd.summary.days || mo.days_elapsed;
+          mo.updated = pd.asOf + ' · from upload';
+          Object.assign(mo.metrics, { spend: pd.summary.spend, leads: pd.summary.leads, cpl: pd.summary.cpl, ctr: pd.summary.ctr, cpc: pd.summary.cpc });
+          if (es.conversion_rate_click_to_lead != null) mo.metrics.conv = es.conversion_rate_click_to_lead;
+          if (bp.projected_month_end_spend) mo.metrics.forecast = Math.round(bp.projected_month_end_spend);
+          if (Array.isArray(j.daily_performance) && j.daily_performance.length) {
+            mo.cpl_trend = j.daily_performance.map(d => { const pt = this.fmtIso(d.date).split(' '); return { label: pt[0] + ' ' + pt[1], val: d.cost_per_lead }; });
+          }
+          if (Array.isArray(j.campaign_performance) && j.campaign_performance.length) {
+            mo.campaigns = j.campaign_performance.map((cp, i) => ({
+              id: cp.campaign_id || 'c' + i, name: cp.campaign_name, objective: 'Leads',
+              status: cp.campaign_effective_status === 'ACTIVE' ? 'Active' : 'Paused',
+              spend: Math.round((cp.spend || 0) * 100) / 100, leads: cp.leads || 0, cpl: cp.cost_per_lead || 0, ctr: cp.ctr || 0, cpc: cp.cpc || 0,
+              health: cp.performance_status === 'Strong Performance' ? 'strong' : cp.performance_status === 'Needs Attention' ? 'attention' : 'ok',
+              healthLabel: cp.performance_status || 'OK',
+              quality: cp.plain_english_summary || '', action: cp.recommended_action || ''
+            }));
+          }
+          if (bp.budget_status === 'Overspend Risk' && mo.summary.health !== 'Needs Attention') mo.summary.health = 'Watch';
+        } else if (pd.kind === 'Daily Tracker') {
+          const j = pd.raw;
+          if (j.monthly_budget) mo.budget = Math.round(j.monthly_budget);
+          if (Array.isArray(j.daily_tracker)) mo.tracker = j.daily_tracker;
+          if ((pd.summary.days || 0) >= (mo.days_elapsed || 0)) {
+            mo.days_elapsed = pd.summary.days;
+            mo.metrics.spend = Math.round(pd.summary.mtd * 100) / 100;
+            mo.metrics.forecast = Math.round(pd.summary.avg * (mo.days_in_month || 31));
+            mo.updated = pd.asOf + ' · from upload';
+          }
+        } else {
+          mo.ab_log = this.buildAbLog(pd.raw);
+          if (pd.raw.target_cost_per_result) mo.target_cpl = pd.raw.target_cost_per_result;
+        }
+        this.setState({ db: S.db, uploadDlg: null, monthKey: mk, compareId: entry.prev_summary ? entry.id : S.compareId });
+        this.showToast(pd.kind + ' saved as Current for ' + mo.label + (prevCur ? '. v' + prevCur.version + ' archived.' : '.'));
+      },
+
+      heroText: r.summary.text, heroRec: r.summary.recommendation,
+      heroPills: r.summary.pills.map(t => ({ text: t })),
+
+      cards, meaningStyle: { fontSize: '11.5px', lineHeight: 1.45, color: '#4A6B62', display: showExplainers ? 'block' : 'none' },
+
+      dayOf: r.days_elapsed + ' of ' + r.days_in_month,
+      spendPct: Math.min(100, Math.round(m.spend / r.budget * 100)) + '%',
+      expectedPct: Math.min(100, Math.round(expected / r.budget * 100)) + '%',
+      spendText: this.money2(m.spend), expectedText: this.money2(expected), remainingText: this.money2(remaining),
+      forecastText: this.money(m.forecast), budgetMeaning, budgetMeaning2,
+      paceLabel, pacePctText: (monthDone ? '100%' : (pacePct > 0 ? '+' : '') + pacePct + '%'),
+      paceChipStyle: paceOk ? this.chip('#E6F3F0', '#1E4D40', '#D0E8E2') : this.chip('#fff', '#4A6B62', '#4A6B62'),
+
+      cplText: '$' + (+m.cpl).toFixed(2), targetText: '$' + (+r.target_cpl).toFixed(2),
+      cplChipText: cplUnder ? '$' + (r.target_cpl - m.cpl).toFixed(2) + ' under target' : '$' + (m.cpl - r.target_cpl).toFixed(2) + ' over target',
+      cplChipStyle: cplUnder ? this.chip('#1E4D40', '#fff', '#1E4D40') : this.chip('#fff', '#C53030', '#C53030'),
+      cplBars, targetLineBottom, targetLineLabelBottom: targetLineBottom + 4,
+      bestCampaign: best.name.split(' ·')[0] + ' $' + best.cpl,
+      worstCampaign: worst.name.split(' ·')[0] + ' $' + worst.cpl,
+
+      attention: r.attention.map(a => ({ ...a, chipStyle: this.prioStyle(a.priority) })),
+      working: r.working, changed: r.changed, notes,
+
+      campaigns, audiences, budgetBars, actionCols, creatives, reportRows,
+
+      leadsVal: String(m.leads),
+      budgetVal: r.budget, targetVal: r.target_cpl,
+      setBudgetVal: e => { const v = parseInt(e.target.value, 10); if (!isNaN(v) && v >= 0) { r.budget = v; this.setState({ db: S.db }); } },
+      setTargetVal: e => { const v = parseInt(e.target.value, 10); if (!isNaN(v) && v >= 0) { r.target_cpl = v; this.setState({ db: S.db }); } },
+      setManager: e => { c.manager = e.target.value; this.setState({ db: S.db }); },
+      swatches: ['#2E3192', '#B45309', '#0E7490', '#6D28D9', '#1E4D40'].map(col => ({
+        name: col, pick: () => { c.colour = col; this.setState({ db: S.db }); this.showToast('Accent colour updated.'); },
+        style: { width: '34px', height: '34px', borderRadius: '10px', cursor: 'pointer', background: col, border: c.colour === col ? '3px solid #162E27' : '3px solid #E6F3F0' }
+      })),
+      saveSettings: () => this.showToast('Settings saved for ' + c.name + '.'),
+
+      pipeStats, pipeRows, deskActions, deskNotes,
+      vBudgetMonth: S.budgetRange === 'month', vBudgetRange: S.budgetRange === 'quarter' || S.budgetRange === 'history', vBudgetUpcoming: S.budgetRange === 'upcoming',
+      rangeChips, budgetSubtitle, rangeStats, rangeCaption, historyRows, upcomingRows, noUpcoming: upcomingRows.length === 0,
+      deskMonths, createMonth, addClient,
+      newMonthOn: !!S.newMonth,
+      newMonthLabel: S.newMonth ? this.monthName(S.newMonth.key) : '',
+      newMonthBudget: S.newMonth ? S.newMonth.budget : 0,
+      newMonthTarget: S.newMonth ? S.newMonth.target : 0,
+      setNewBudget: e => { const v = parseInt(e.target.value, 10); this.setState({ newMonth: { ...S.newMonth, budget: isNaN(v) ? 0 : v } }); },
+      setNewTarget: e => { const v = parseInt(e.target.value, 10); this.setState({ newMonth: { ...S.newMonth, target: isNaN(v) ? 0 : v } }); },
+      cancelNewMonth: () => this.setState({ newMonth: null }),
+      confirmNewMonth: () => {
+        const nm = S.newMonth; if (!nm) return;
+        c.months[nm.key] = { label: this.monthName(nm.key), status: 'Planned', budget: nm.budget || 0, target_cpl: nm.target || 0 };
+        this.setState({ db: S.db, newMonth: null });
+        this.showToast(this.monthName(nm.key) + ' planned at ' + this.money(nm.budget || 0) + '.');
+      },
+      stopClick: e => e.stopPropagation(),
+      addAction: () => {
+        const na = { id: 'a_' + Date.now(), title: 'New action item', why: 'Add a short note on why this matters.', owner: 'EFG · ' + (c.manager.split(' ')[0] || 'Team'), priority: 'Medium', due: 'This week', status: 'week', impact: 'To be confirmed.', keep: true };
+        r.actions.unshift(na);
+        this.setState({ db: S.db, editingId: na.id });
+        this.showToast('Action item added. Edit the wording, then keep or drop it.');
+      },
+      addNote: () => {
+        r.notes.push({ id: 'n_' + Date.now(), text: 'New note. Write it, then choose who can see it.', visible: false });
+        this.setState({ db: S.db });
+        this.showToast('Note added as internal only.');
+      },
+      nameVal: c.name, industryVal: c.industry, objectiveVal: c.objective,
+      setName: e => { c.name = e.target.value; c.initials = (c.name.split(' ').filter(Boolean).map(w2 => w2[0]).join('').slice(0, 2) || 'C').toUpperCase(); this.setState({ db: S.db }); },
+      setIndustry: e => { c.industry = e.target.value; this.setState({ db: S.db }); },
+      setObjective: e => { c.objective = e.target.value; this.setState({ db: S.db }); },
+      settingsDel: settingsDel.del,
+      settingsDelLabel: settingsDel.delLabel === 'Confirm' ? 'Confirm delete' : 'Delete client',
+      settingsDelStyle: { ...settingsDel.delStyle, fontSize: '13px', padding: '9px 16px', borderRadius: '10px' },
+      canDeleteClient: S.db.clients.length > 1,
+      settingsHistory,
+      wfDraft: wf('Draft'), wfApproved: wf('Approved'), wfPublished: wf('Published'),
+      setDraft: setStatus('Draft'), setApproved: setStatus('Approved'), setPublished: setStatus('Published'),
+
+      toast: S.toast, toastOn: !!S.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

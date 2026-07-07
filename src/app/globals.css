@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+/* Poppins — headings, buttons, chips, values (500/600/700) */
+@import "@fontsource/poppins/500.css";
+@import "@fontsource/poppins/600.css";
+@import "@fontsource/poppins/700.css";
+/* Lato — body, inputs (400/700) */
+@import "@fontsource/lato/400.css";
+@import "@fontsource/lato/700.css";
+
+/*
+ * EFG Consulting design tokens — from the design handoff (handoff/README.md).
+ * These values are final; do not tweak.
+ */
+@theme {
+  --color-ink: #162e27;
+  --color-primary: #1e4d40;
+  --color-accent: #2e6b5a;
+  --color-muted: #4a6b62;
+  --color-line: #d0e8e2;
+  --color-soft: #e6f3f0;
+  --color-page: #f3f8f6;
+  --color-faint: #f8fbfa;
+  --color-bar2: #a7ccc1;
+  --color-danger: #c53030;
+
+  --font-heading: "Poppins", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Lato", "Segoe UI", system-ui, sans-serif;
+
+  --radius-card: 14px;
+  --radius-card-lg: 16px;
+  --radius-hero: 18px;
+  --radius-strip: 10px;
+
+  --shadow-card: 0 1px 2px rgba(22, 46, 39, 0.05);
+  --shadow-hero: 0 6px 18px rgba(22, 46, 39, 0.14);
+  --shadow-modal: 0 24px 64px rgba(22, 46, 39, 0.35);
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-page);
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: var(--font-heading);
+  cursor: pointer;
+}
+
+select,
+input,
+textarea {
+  font-family: var(--font-body);
+  color: var(--color-ink);
+}
+
+@keyframes efgspin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes efgup {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@media print {
+  .np {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}
