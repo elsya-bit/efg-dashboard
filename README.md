@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EFG Consulting · Client Portal
 
-## Getting Started
+Multi-client Meta Ads reporting portal. Internal EFG staff ingest daily JSON
+report exports, review each month's report, and publish it; clients sign in
+and see **only their own published data**.
 
-First, run the development server:
+Built from the design handoff in [`handoff/`](handoff/README.md) — that README
+is the product spec (screens, business rules, design tokens). The prototype
+(`handoff/EFG Client Portal.dc.html`) is the pixel reference.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Stack
+
+- **Next.js 16** (App Router) + TypeScript + Tailwind v4
+- **Supabase**: Postgres, Auth (invite-only email+password), Storage, RLS
+- Fonts self-hosted via `@fontsource` (Poppins + Lato)
+
+## Setup
+
+1. `npm install`
+2. Copy `.env.example` → `.env.local` and fill in the Supabase values
+   (dashboard → Project Settings → API). `SUPABASE_SERVICE_ROLE_KEY` is
+   server-side only — it is used by the seed script and never shipped to the
+   browser.
+3. Apply the database schema (pick one):
+   - `npx supabase link --project-ref <your-project-ref>` then
+     `npx supabase db push`
+   - or paste `supabase/migrations/20260707000001_init.sql` into the
+     dashboard SQL editor and run it.
+4. Seed the demo dataset (3 clients, months, uploads → Storage):
+   `npx tsx scripts/seed.ts` (re-runnable; reseeds from scratch).
+5. `npm run dev`
+
+### Creating logins
+
+Users are invited, never self-registered. In the Supabase dashboard
+(Authentication → Users → Add user), create the account, then link it in SQL:
+
+```sql
+-- internal EFG staff (sees every client, drafts included)
+insert into public.memberships (user_id, role) values ('<auth-user-uuid>', 'internal');
+
+-- client login (sees only their client's published months)
+insert into public.memberships (user_id, client_id, role)
+values ('<auth-user-uuid>', (select id from public.clients where slug = 'capital_transport'), 'client');
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Guarantees
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Client isolation is enforced by **row-level security, not UI**: a client role
+can only read its own `clients` row and its own `months` rows with
+`status = 'Published'`. `report_uploads`, draft months, other clients, and the
+raw files in Storage are invisible to client logins. See
+`supabase/migrations/20260707000001_init.sql`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Repo layout
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/` — Next.js app (App Router; `src/proxy.ts` is the session guard)
+- `supabase/migrations/` — schema + RLS
+- `scripts/seed.ts` — reseed from `handoff/report-data.js`
+- `handoff/` — design handoff bundle (spec, prototype, sample exports)
