@@ -48,8 +48,17 @@ export async function getUserContext(): Promise<UserContext | null> {
       .order("name"),
   ]);
 
-  const memberships: Membership[] = membershipsRes.data ?? [];
-  const clients: ClientRow[] = clientsRes.data ?? [];
+  // A failed query must surface as an error, not as "no access" — otherwise a
+  // transient API blip would bounce an authorised user to /no-access.
+  if (membershipsRes.error) {
+    throw new Error(`Failed to load memberships: ${membershipsRes.error.message}`);
+  }
+  if (clientsRes.error) {
+    throw new Error(`Failed to load clients: ${clientsRes.error.message}`);
+  }
+
+  const memberships: Membership[] = membershipsRes.data;
+  const clients: ClientRow[] = clientsRes.data;
   const isInternal = memberships.some((m) => m.role === "internal");
 
   return { user, isInternal, memberships, clients };

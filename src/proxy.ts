@@ -17,13 +17,18 @@ export async function proxy(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet, headers) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value),
           );
           supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options),
+          );
+          // Responses that set auth cookies must never be cached by a CDN or
+          // reverse proxy — one user's session could be served to another.
+          Object.entries(headers ?? {}).forEach(([key, value]) =>
+            supabaseResponse.headers.set(key, value),
           );
         },
       },
@@ -40,27 +45,29 @@ export async function proxy(request: NextRequest) {
   const isLoginRoute = pathname === "/login" || pathname.startsWith("/login/");
   const isAuthRoute = pathname === "/auth" || pathname.startsWith("/auth/");
 
-  if (!user && !isLoginRoute && !isAuthRoute) {
+  // Redirects must carry any refreshed auth cookies and the matching
+  // cache-suppression headers from the response Supabase populated.
+  const redirectTo = (pathname: string) => {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = pathname;
     url.search = "";
     const redirectResponse = NextResponse.redirect(url);
-    // Keep any refreshed auth cookies on the redirect response.
     supabaseResponse.cookies
       .getAll()
       .forEach((cookie) => redirectResponse.cookies.set(cookie));
+    for (const header of ["cache-control", "expires", "pragma"]) {
+      const value = supabaseResponse.headers.get(header);
+      if (value) redirectResponse.headers.set(header, value);
+    }
     return redirectResponse;
+  };
+
+  if (!user && !isLoginRoute && !isAuthRoute) {
+    return redirectTo("/login");
   }
 
   if (user && isLoginRoute) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/";
-    url.search = "";
-    const redirectResponse = NextResponse.redirect(url);
-    supabaseResponse.cookies
-      .getAll()
-      .forEach((cookie) => redirectResponse.cookies.set(cookie));
-    return redirectResponse;
+    return redirectTo("/");
   }
 
   // Return the supabaseResponse object as-is so refreshed cookies stay in
