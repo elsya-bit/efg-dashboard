@@ -288,6 +288,137 @@ export function deriveBestWorst(report: MonthReport): {
   };
 }
 
+export type BudgetBar = {
+  label: string;
+  valText: string;
+  w: string;
+  bg: string;
+  border: string;
+  sub: string;
+};
+
+/** "This month" budget bars (monthly / expected / actual / forecast). */
+export function deriveBudgetBars(
+  month: PortalMonth,
+  report: MonthReport,
+  pacing: Pacing,
+): BudgetBar[] {
+  const budget = month.budget ?? 0;
+  const m = report.metrics ?? { spend: 0, forecast: 0 };
+  const maxBar = Math.max(budget, m.forecast ?? 0, m.spend ?? 0, 1);
+  const w = (v: number) => Math.round((v / maxBar) * 100) + "%";
+  return [
+    {
+      label: "Monthly budget",
+      valText: money(budget),
+      w: w(budget),
+      bg: "#D0E8E2",
+      border: "none",
+      sub: `Agreed for ${month.label}.`,
+    },
+    {
+      label: "Expected by today",
+      valText: money2(pacing.expected),
+      w: w(pacing.expected),
+      bg: "#4A6B62",
+      border: "none",
+      sub: pacing.monthDone
+        ? "The month is complete."
+        : `Where spend should sit at day ${month.days_elapsed} of ${month.days_in_month}.`,
+    },
+    {
+      label: "Actual spend",
+      valText: money2(m.spend ?? 0),
+      w: w(m.spend ?? 0),
+      bg: "#1E4D40",
+      border: "none",
+      sub: `${pacing.paceLabel}.`,
+    },
+    {
+      label: "Forecast month end",
+      valText: money(m.forecast ?? 0),
+      w: w(m.forecast ?? 0),
+      bg: pacing.overBudget ? "#fff" : "#E6F3F0",
+      border: pacing.overBudget ? "2px dashed #C53030" : "2px dashed #2E6B5A",
+      sub: pacing.overBudget
+        ? `About ${money((m.forecast ?? 0) - budget)} over if nothing changes.`
+        : "Lands inside budget at the current rate.",
+    },
+  ];
+}
+
+export type HistoryRow = {
+  key: string;
+  label: string;
+  pct: string;
+  barBg: string;
+  spendOf: string;
+  leads: string;
+  stateChip: string;
+  stateOk: boolean | null; // null = in progress
+  cplChip: string;
+  cplOk: boolean;
+};
+
+/** Budget history rows for reported months (newest first input). */
+export function deriveHistoryRows(months: PortalMonth[]): HistoryRow[] {
+  return months
+    .filter((mo) => mo.metrics)
+    .map((mo) => {
+      const mm = mo.metrics!;
+      const budget = mo.budget ?? 0;
+      const target = mo.target_cpl ?? 0;
+      const done = (mo.days_elapsed ?? 0) >= (mo.days_in_month ?? 0);
+      const over = mm.spend > budget;
+      return {
+        key: mo.key,
+        label: mo.label,
+        pct:
+          (budget > 0 ? Math.min(100, Math.round((mm.spend / budget) * 100)) : 0) +
+          "%",
+        barBg: over ? "#C53030" : "#1E4D40",
+        spendOf: `${money2(mm.spend)} of ${money(budget)}`,
+        leads: `${mm.leads} ${mm.leads === 1 ? "lead" : "leads"}`,
+        stateChip: done ? (over ? "Over budget" : "On plan") : "In progress",
+        stateOk: done ? !over : null,
+        cplChip: `$${mm.cpl} CPL v $${target} target`,
+        cplOk: mm.cpl <= target,
+      };
+    });
+}
+
+export type RangeStats = {
+  stats: Array<{ value: string; label: string; colour: string }>;
+  caption: string;
+};
+
+export function deriveRangeStats(months: PortalMonth[]): RangeStats {
+  const reported = months.filter((mo) => mo.metrics);
+  const totB = reported.reduce((s, mo) => s + (mo.budget ?? 0), 0);
+  const totS = reported.reduce((s, mo) => s + mo.metrics!.spend, 0);
+  const totL = reported.reduce((s, mo) => s + mo.metrics!.leads, 0);
+  const caption = reported.length
+    ? `${reported.length} reported month${reported.length === 1 ? "" : "s"} · ${reported[reported.length - 1].label} to ${reported[0].label}${
+        reported.some((mo) => (mo.days_elapsed ?? 0) < (mo.days_in_month ?? 0))
+          ? " · includes the current month so far"
+          : ""
+      }`
+    : "No reported months yet";
+  return {
+    stats: [
+      { value: money(totB), label: "total budget", colour: "#162E27" },
+      { value: money2(totS), label: "total spent", colour: "#1E4D40" },
+      { value: String(totL), label: "total leads", colour: "#162E27" },
+      {
+        value: totL > 0 ? "$" + (totS / totL).toFixed(2) : "$0.00",
+        label: "average CPL",
+        colour: "#1E4D40",
+      },
+    ],
+    caption,
+  };
+}
+
 export type TrackerRow = {
   day: string;
   vic: string;
@@ -346,4 +477,68 @@ export function deriveTracker(month: PortalMonth, report: MonthReport): TrackerV
     dailyTargetText: money2(dailyTarget),
     asOf: recent.length ? recent[recent.length - 1].day : "",
   };
+}
+
+export type TrackerStats = {
+  stats: Array<{ label: string; value: string }>;
+  /** Position of the planned-daily-budget tick on the day bars, 0-100. */
+  planPct: number;
+};
+
+/** The 5 stat cards + plan tick for the Daily Tracker screen. */
+export function deriveTrackerStats(
+  month: PortalMonth,
+  report: MonthReport,
+): TrackerStats {
+  const all = report.tracker ?? [];
+  const hasTracker = all.length > 0;
+  const daysIn = month.days_in_month ?? 0;
+  const dailyTarget = daysIn ? (month.budget ?? 0) / daysIn : 0;
+  const maxDaily = all.reduce((mx, d) => Math.max(mx, d.daily_total), 1);
+  const last = all[all.length - 1];
+  return {
+    stats: [
+      { label: "Spend month to date", value: hasTracker ? money2(last.mtd_total) : "—" },
+      { label: "Budget remaining", value: hasTracker ? money2(last.budget_remaining) : "—" },
+      {
+        label: "Average daily spend",
+        value: hasTracker ? money2(last.mtd_total / all.length) : "—",
+      },
+      { label: "Planned daily budget", value: money2(dailyTarget) },
+      { label: "Days recorded", value: String(all.length) },
+    ],
+    planPct: Math.min(100, Math.round((dailyTarget / maxDaily) * 100)),
+  };
+}
+
+export type ActionColumn = {
+  key: "urgent" | "week" | "monitor" | "done";
+  label: string;
+  headStyle: "danger" | "soft" | "watchline" | "solid";
+  items: import("./report-types").ReportAction[];
+  count: string;
+};
+
+/** Kanban columns for the Actions screen (clients see kept actions only). */
+export function deriveActionColumns(
+  report: MonthReport,
+  internalView: boolean,
+): ActionColumn[] {
+  const acts = (report.actions ?? []).filter((a) => internalView || a.keep);
+  const defs: Array<[ActionColumn["key"], string, ActionColumn["headStyle"]]> = [
+    ["urgent", "Urgent", "danger"],
+    ["week", "This week", "soft"],
+    ["monitor", "Monitor", "watchline"],
+    ["done", "Completed", "solid"],
+  ];
+  return defs.map(([key, label, headStyle]) => {
+    const items = acts.filter((a) => a.status === key);
+    return {
+      key,
+      label,
+      headStyle,
+      items,
+      count: `${items.length} ${items.length === 1 ? "item" : "items"}`,
+    };
+  });
 }

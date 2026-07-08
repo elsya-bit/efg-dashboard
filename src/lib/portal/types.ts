@@ -16,6 +16,17 @@ export type PortalClient = {
 
 export type MonthStatus = "Draft" | "Approved" | "Published" | "Planned";
 
+/** Headline metrics stored at report.metrics (see report-types.ts). */
+export type MonthMetrics = {
+  spend: number;
+  leads: number;
+  cpl: number;
+  ctr: number;
+  cpc: number;
+  conv: number;
+  forecast: number;
+};
+
 export type PortalMonth = {
   id: string;
   /** '2026-07' */
@@ -28,6 +39,8 @@ export type PortalMonth = {
   days_in_month: number | null;
   days_elapsed: number | null;
   updated_at: string | null;
+  /** Headline metrics (null for Planned months without report data). */
+  metrics: MonthMetrics | null;
   /** true when the month carries report data (metrics present). */
   has_report: boolean;
 };

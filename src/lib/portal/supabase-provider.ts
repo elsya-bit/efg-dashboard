@@ -142,11 +142,12 @@ export async function loadMonths(clientId: string): Promise<PortalMonth[]> {
       key,
       label: monthName(key),
       status: m.status,
-      budget: m.budget,
-      target_cpl: m.target_cpl,
+      budget: m.budget == null ? null : Number(m.budget),
+      target_cpl: m.target_cpl == null ? null : Number(m.target_cpl),
       days_in_month: m.days_in_month,
       days_elapsed: m.days_elapsed,
       updated_at: m.updated_at,
+      metrics: (m.metrics as PortalMonth["metrics"]) ?? null,
       has_report: m.metrics != null,
     };
   });

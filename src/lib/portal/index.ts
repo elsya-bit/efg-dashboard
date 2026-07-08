@@ -215,6 +215,38 @@ export async function getUploadsView(clientSlug: string): Promise<UploadsView> {
   return { kind: "view", client, clients: session.clients, uploads };
 }
 
+export type ClientMonths =
+  | {
+      kind: "months";
+      client: PortalClient;
+      /** Every month visible to the effective role, newest first (incl. Planned for internal). */
+      months: PortalMonth[];
+      effectiveRole: PortalRole;
+      viewAsClient: boolean;
+    }
+  | { kind: "redirect"; to: string };
+
+/**
+ * Month list for screens that show more than reported months (Reports,
+ * Budget history/upcoming). Clients only ever get Published months — both
+ * here and at the RLS layer.
+ */
+export const getClientMonths = cache(async function getClientMonths(
+  clientSlug: string,
+): Promise<ClientMonths> {
+  const gate = await resolveGate();
+  if (gate.kind === "redirect") return gate;
+  const { session, viewAsClient, effectiveRole } = gate;
+  const client = session.clients.find((c) => c.slug === clientSlug);
+  if (!client) return { kind: "redirect", to: `/${session.clients[0].slug}` };
+  const all = await getMonths(client.id, client.slug);
+  const months =
+    effectiveRole === "client"
+      ? all.filter((m) => m.status === "Published" && m.has_report)
+      : all;
+  return { kind: "months", client, months, effectiveRole, viewAsClient };
+});
+
 /** All clients, for internal-only admin surfaces. Null unless internal. */
 export async function getInternalClients(): Promise<PortalClient[] | null> {
   const session = await getSession();

@@ -130,6 +130,7 @@ export function fixtureMonths(clientSlug: string): PortalMonth[] {
         days_in_month: m.days_in_month ?? null,
         days_elapsed: m.days_elapsed ?? null,
         updated_at: parseUpdated(m.updated),
+        metrics: (m.metrics as PortalMonth["metrics"]) ?? null,
         has_report: m.metrics != null,
       };
     });
@@ -151,6 +152,82 @@ export function fixtureUploads(clientSlug: string): UploadRowDb[] {
     prev_summary: u.prev_summary ?? null,
     uploaded_at: parseAuTimestamp(u.uploaded) ?? new Date().toISOString(),
   }));
+}
+
+/* ------------------------------------------------------------------ */
+/* Month + report mutations (internal-only surfaces)                    */
+/* ------------------------------------------------------------------ */
+
+export function fixturePlanMonth(
+  clientSlug: string,
+  monthKey: string,
+  budget: number,
+  targetCpl: number,
+): boolean {
+  const c = clients.find((x) => x.id === clientSlug);
+  if (!c || c.months[monthKey]) return false;
+  c.months[monthKey] = {
+    label: monthName(monthKey),
+    status: "Planned",
+    budget,
+    target_cpl: targetCpl,
+  } as HandoffMonth;
+  return true;
+}
+
+export function fixtureUpdatePlan(
+  clientSlug: string,
+  monthKey: string,
+  budget: number | null,
+  targetCpl: number | null,
+): boolean {
+  const m = clients.find((x) => x.id === clientSlug)?.months[monthKey];
+  if (!m) return false;
+  if (budget != null) m.budget = budget;
+  if (targetCpl != null) m.target_cpl = targetCpl;
+  return true;
+}
+
+export function fixtureDeletePlan(clientSlug: string, monthKey: string): boolean {
+  const c = clients.find((x) => x.id === clientSlug);
+  const m = c?.months[monthKey];
+  if (!c || !m || m.metrics != null) return false; // only Planned shells
+  delete c.months[monthKey];
+  return true;
+}
+
+export function fixtureToggleAction(
+  clientSlug: string,
+  monthKey: string,
+  actionId: string,
+): { done: boolean } | null {
+  const m = clients.find((x) => x.id === clientSlug)?.months[monthKey];
+  const actions = (m?.actions ?? []) as Array<{
+    id: string;
+    status: string;
+    due: string;
+  }>;
+  const a = actions.find((x) => x.id === actionId);
+  if (!a) return null;
+  const done = a.status !== "done";
+  a.status = done ? "done" : "week";
+  if (done) a.due = "Done today";
+  return { done };
+}
+
+export function fixtureAddRefresh(
+  clientSlug: string,
+  monthKey: string,
+  creativeId: string,
+  action: Record<string, unknown>,
+): "added" | "exists" | null {
+  const m = clients.find((x) => x.id === clientSlug)?.months[monthKey];
+  if (!m) return null;
+  const actions = ((m.actions as unknown[]) ??
+    (m.actions = [])) as Array<Record<string, unknown>>;
+  if (actions.some((a) => a._auto === creativeId)) return "exists";
+  actions.push(action);
+  return "added";
 }
 
 let fixtureIdSeq = 1;
