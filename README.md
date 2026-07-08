@@ -30,6 +30,13 @@ is the product spec (screens, business rules, design tokens). The prototype
    `npx tsx scripts/seed.ts` (re-runnable; reseeds from scratch).
 5. `npm run dev`
 
+### Developing without a database
+
+`EFG_DEV_FIXTURES=1 npm run dev` renders the portal from the handoff dataset
+(`handoff/report-data.js`) with auth bypassed — useful for UI work and
+screenshot comparisons against the prototype. It refuses to activate in
+production builds; never set it in a deployed environment.
+
 ### Creating logins
 
 Users are invited, never self-registered. In the Supabase dashboard

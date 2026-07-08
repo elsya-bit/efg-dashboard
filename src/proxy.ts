@@ -7,6 +7,15 @@ import { NextResponse, type NextRequest } from "next/server";
  * and gates unauthenticated access.
  */
 export async function proxy(request: NextRequest) {
+  // Dev-only fixture mode renders the UI from the design-handoff dataset
+  // without Supabase; auth is bypassed. Never active in production builds.
+  if (
+    process.env.EFG_DEV_FIXTURES === "1" &&
+    process.env.NODE_ENV !== "production"
+  ) {
+    return NextResponse.next({ request });
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
