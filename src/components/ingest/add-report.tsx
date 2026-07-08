@@ -17,6 +17,12 @@ const KINDS: UploadKind[] = ["Meta Dashboard", "Daily Tracker", "A/B Testing"];
 /** Dev-fixture sample files (served from /fixtures/samples in fixture mode). */
 export type SampleFile = { label: string; path: string };
 
+export const FIXTURE_SAMPLES: SampleFile[] = [
+  { label: "Meta Dashboard · 5 Jul", path: "/fixtures/samples/Capital_Transport_Meta_Ads_Dashboard_July2026_MTD_2026-07-05.json" },
+  { label: "Daily Tracker · 6 Jul", path: "/fixtures/samples/Capital_Transport_Daily_Budget_Tracker_July2026_2026-07-06.json" },
+  { label: "A/B Testing · 6 Jul", path: "/fixtures/samples/CT A-B Testing Log to 6 Jul 2026.json" },
+];
+
 /**
  * "Add report" button + the prototype's upload dialog. After a successful
  * ingest, navigates to the affected month's overview (prototype behaviour).

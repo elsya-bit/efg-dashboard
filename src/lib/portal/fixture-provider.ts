@@ -230,6 +230,154 @@ export function fixtureAddRefresh(
   return "added";
 }
 
+export function fixtureSetMonthStatus(
+  clientSlug: string,
+  monthKey: string,
+  status: "Draft" | "Approved" | "Published",
+): boolean {
+  const m = clients.find((x) => x.id === clientSlug)?.months[monthKey];
+  if (!m) return false;
+  m.status = status;
+  return true;
+}
+
+export function fixtureDeleteMonth(clientSlug: string, monthKey: string): boolean {
+  const c = clients.find((x) => x.id === clientSlug);
+  const m = c?.months[monthKey];
+  if (!c || !m) return false;
+  const reportedKeys = Object.keys(c.months).filter(
+    (k) => c.months[k].metrics != null,
+  );
+  const deletable =
+    (m.status === "Draft" || m.status === "Planned") &&
+    !(m.metrics != null && reportedKeys.length === 1);
+  if (!deletable) return false;
+  delete c.months[monthKey];
+  return true;
+}
+
+export function fixtureUpdateClient(
+  clientSlug: string,
+  patch: Partial<
+    Pick<
+      HandoffClient,
+      "name" | "initials" | "industry" | "objective" | "manager" | "contact" | "contact_role" | "colour"
+    >
+  >,
+): boolean {
+  const c = clients.find((x) => x.id === clientSlug);
+  if (!c) return false;
+  Object.assign(c, patch);
+  return true;
+}
+
+export function fixtureAddClient(slug: string, monthKey: string): boolean {
+  if (clients.some((c) => c.id === slug)) return false;
+  clients.push({
+    id: slug,
+    name: "New client",
+    initials: "NC",
+    colour: "#1E4D40",
+    industry: "Industry",
+    objective: "Lead generation",
+    manager: "Unassigned",
+    currency: "AUD",
+    months: {
+      [monthKey]: {
+        label: monthName(monthKey),
+        status: "Draft",
+        updated: undefined,
+        days_elapsed: 0,
+        days_in_month: 31,
+        budget: 0,
+        target_cpl: 0,
+        summary: {
+          health: "Draft",
+          text: "No analysis yet. Set the monthly budget and target CPL, connect the ad account, then run the first analysis.",
+          recommendation: "Run the first analysis once the ad account is connected.",
+          pills: [],
+        },
+        metrics: { spend: 0, leads: 0, cpl: 0, ctr: 0, cpc: 0, conv: 0, forecast: 0 },
+        prev: null,
+        cpl_trend: [],
+        campaigns: [],
+        creatives: [],
+        audiences: [],
+        actions: [],
+        changed: [],
+        attention: [],
+        working: [],
+        notes: [],
+      } as unknown as HandoffMonth,
+    },
+  });
+  return true;
+}
+
+export function fixtureDeleteClient(clientSlug: string): boolean {
+  const idx = clients.findIndex((c) => c.id === clientSlug);
+  if (idx < 0 || clients.length <= 1) return false;
+  clients.splice(idx, 1);
+  return true;
+}
+
+type DeskAction = {
+  id: string;
+  title: string;
+  keep: boolean;
+  [k: string]: unknown;
+};
+type DeskNote = { id?: string; text: string; visible: boolean };
+
+export function fixtureEditActions(
+  clientSlug: string,
+  monthKey: string,
+  op:
+    | { kind: "title"; id: string; title: string }
+    | { kind: "keep"; id: string }
+    | { kind: "delete"; id: string }
+    | { kind: "add"; action: DeskAction },
+): boolean {
+  const m = clients.find((x) => x.id === clientSlug)?.months[monthKey];
+  if (!m) return false;
+  const actions = ((m.actions as DeskAction[] | undefined) ??
+    (m.actions = [])) as DeskAction[];
+  if (op.kind === "add") {
+    actions.unshift(op.action);
+    return true;
+  }
+  const a = actions.find((x) => x.id === op.id);
+  if (!a && op.kind !== "delete") return false;
+  if (op.kind === "title" && a) a.title = op.title;
+  if (op.kind === "keep" && a) a.keep = !a.keep;
+  if (op.kind === "delete") m.actions = actions.filter((x) => x.id !== op.id);
+  return true;
+}
+
+export function fixtureEditNotes(
+  clientSlug: string,
+  monthKey: string,
+  op:
+    | { kind: "text"; id: string; text: string }
+    | { kind: "visible"; id: string }
+    | { kind: "delete"; id: string }
+    | { kind: "add"; note: DeskNote },
+): boolean {
+  const m = clients.find((x) => x.id === clientSlug)?.months[monthKey];
+  if (!m) return false;
+  const notes = ((m.notes as DeskNote[] | undefined) ?? (m.notes = [])) as DeskNote[];
+  if (op.kind === "add") {
+    notes.push(op.note);
+    return true;
+  }
+  const n = notes.find((x) => x.id === op.id);
+  if (!n && op.kind !== "delete") return false;
+  if (op.kind === "text" && n) n.text = op.text;
+  if (op.kind === "visible" && n) n.visible = !n.visible;
+  if (op.kind === "delete") m.notes = notes.filter((x) => x.id !== op.id);
+  return true;
+}
+
 let fixtureIdSeq = 1;
 
 /** In-memory twin of the ingest-report Edge Function (prototype confirmUpload). */

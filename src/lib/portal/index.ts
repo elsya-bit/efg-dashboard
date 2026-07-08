@@ -247,6 +247,47 @@ export const getClientMonths = cache(async function getClientMonths(
   return { kind: "months", client, months, effectiveRole, viewAsClient };
 });
 
+export type AdminMonthView =
+  | {
+      kind: "view";
+      client: PortalClient;
+      clients: PortalClient[];
+      months: PortalMonth[];
+      /** Selected month (requested key, else latest), null when none exist. */
+      month: PortalMonth | null;
+      report: MonthReport | null;
+    }
+  | { kind: "redirect"; to: string };
+
+/** Review desk / settings data — internal only, any month status. */
+export async function getAdminMonthView(
+  clientSlug: string,
+  monthKey?: string,
+): Promise<AdminMonthView> {
+  const session = await getSession();
+  if (!session) return { kind: "redirect", to: "/login" };
+  if (session.realRole !== "internal") return { kind: "redirect", to: "/" };
+  const client =
+    session.clients.find((c) => c.slug === clientSlug) ?? session.clients[0];
+  if (!client) return { kind: "redirect", to: "/admin" };
+  const months = await getMonths(client.id, client.slug);
+  // default to the latest reported month (prototype: desk edits the effective
+  // month), falling back to the newest shell for brand-new clients
+  const month =
+    months.find((m) => m.key === monthKey) ??
+    months.find((m) => m.has_report) ??
+    months[0] ??
+    null;
+  let report: MonthReport | null = null;
+  if (month?.has_report) {
+    const raw = fixturesEnabled()
+      ? (await import("./fixture-provider")).fixtureReport(client.slug, month.key)
+      : await loadReport(month.id);
+    report = (raw ?? {}) as MonthReport;
+  }
+  return { kind: "view", client, clients: session.clients, months, month, report };
+}
+
 /** All clients, for internal-only admin surfaces. Null unless internal. */
 export async function getInternalClients(): Promise<PortalClient[] | null> {
   const session = await getSession();
