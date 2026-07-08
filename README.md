@@ -65,6 +65,23 @@ can only read its own `clients` row and its own `months` rows with
 raw files in Storage are invisible to client logins. See
 `supabase/migrations/20260707000001_init.sql`.
 
+## What's inside
+
+All seven build phases of the handoff are implemented:
+
+1. Supabase schema + RLS + auth (invite-only email/password)
+2. App shell: top bar, sidebar, role gating, client/month switching,
+   draft banner, view-as-client preview
+3. Overview screen (pixel-faithful to `handoff/EFG Client Portal.dc.html`)
+4. Ingestion: Add-report dialog → `ingest-report` Edge Function →
+   versioning (Current/Archived + compare) → month upsert
+5. Campaigns, Budget (incl. month planning), Daily Tracker, A/B Testing,
+   Actions, Creative, Reports screens
+6. Admin workspace: pipeline, review desk (Draft › Approved › Published),
+   client settings (details, swatches, budget history, uploads, deletes)
+7. Print/PDF export, responsive layouts, empty states, toasts,
+   two-step delete confirms
+
 ## Repo layout
 
 - `src/` — Next.js app (App Router; `src/proxy.ts` is the session guard)

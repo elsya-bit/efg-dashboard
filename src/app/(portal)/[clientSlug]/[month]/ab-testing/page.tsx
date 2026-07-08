@@ -45,7 +45,8 @@ function TestCard({ test, internalView }: { test: AbTest; internalView: boolean 
         <div className="text-[13px] leading-[1.55] text-muted">{test.client}</div>
       )}
       {test.variants.length > 0 && (
-        <div className="flex flex-col">
+        // scrolls inside the card on narrow screens instead of overflowing the page
+        <div className="flex flex-col overflow-x-auto">
           <div className="flex gap-2.5 px-0.5 pb-[7px] font-heading text-[10.5px] font-semibold uppercase tracking-[.06em] text-muted">
             <span className="min-w-[170px] flex-[1.6]">Variant</span>
             <span className="min-w-[90px] flex-1">Cost per result</span>

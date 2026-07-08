@@ -113,6 +113,7 @@ export default async function SettingsPage({
             uploads={uploads}
             addReport={
               <AddReport
+                key="add-report"
                 clientId={client.id}
                 clientSlug={client.slug}
                 samples={fixturesEnabled() ? FIXTURE_SAMPLES : null}

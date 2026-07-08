@@ -79,11 +79,18 @@ textarea {
   }
 }
 
+/* Print / PDF export: hide chrome (.np), white page, flat cards. */
 @media print {
   .np {
     display: none !important;
   }
   body {
     background: #fff;
+  }
+  * {
+    box-shadow: none !important;
+  }
+  @page {
+    margin: 12mm;
   }
 }
