@@ -68,12 +68,14 @@ export async function setMonthStatus(
     const client = await clientBySlug(gate.supabase, clientSlug);
     if (!client) return { ok: false, error: "Unknown client." };
     clientName = client.name;
-    const { error } = await gate.supabase
+    const { data: updated, error } = await gate.supabase
       .from("months")
       .update({ status })
       .eq("client_id", client.id)
-      .eq("month", `${monthKey}-01`);
+      .eq("month", `${monthKey}-01`)
+      .select("id");
     if (error) return { ok: false, error: error.message };
+    if (!updated?.length) return { ok: false, error: "Month not found." };
   }
   revalidate(clientSlug);
   return {
@@ -248,7 +250,11 @@ export async function addClient(): Promise<
       days_in_month: daysInMonth,
       report: shellReport,
     });
-    if (monthErr) return { ok: false, error: monthErr.message };
+    if (monthErr) {
+      // compensate: don't leave a month-less client shell in the pipeline
+      await gate.supabase.from("clients").delete().eq("id", client.id);
+      return { ok: false, error: monthErr.message };
+    }
   }
   revalidate(slug);
   return { ok: true, slug };
@@ -267,6 +273,9 @@ export async function deleteClient(clientSlug: string): Promise<ActionResult> {
       return { ok: false, error: "The last client can't be removed." };
     }
   } else {
+    // Known benign race: count-then-delete isn't atomic, so two admins
+    // deleting the last two clients concurrently could empty the table.
+    // The pipeline's zero-clients empty state keeps that recoverable.
     const { count } = await gate.supabase
       .from("clients")
       .select("id", { count: "exact", head: true });
@@ -287,6 +296,10 @@ export async function deleteClient(clientSlug: string): Promise<ActionResult> {
 /* Review desk: action + note editors (report jsonb)                   */
 /* ------------------------------------------------------------------ */
 
+// Known benign limitation: read-modify-write of the whole report jsonb with
+// no version check — two internal users editing the same month's actions or
+// notes at the same moment can overwrite each other. Acceptable for a small
+// team; add optimistic concurrency (updated_at guard) if it ever bites.
 async function mutateReport(
   gate: Exclude<Gate, { mode: "denied" }>,
   clientSlug: string,

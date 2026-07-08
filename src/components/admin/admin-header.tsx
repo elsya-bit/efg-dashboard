@@ -14,6 +14,11 @@ export function AdminHeader({
     `rounded-[10px] border px-3.5 py-2 font-heading text-[12.5px] font-semibold ${
       on ? "border-primary bg-primary text-white" : "border-line bg-white text-primary"
     }`;
+  // no clients yet → client-scoped tabs fall back to the pipeline
+  const deskHref = clientSlug ? `/admin/desk/${clientSlug}` : "/admin/pipeline";
+  const settingsHref = clientSlug
+    ? `/admin/settings/${clientSlug}`
+    : "/admin/pipeline";
   return (
     <div className="flex flex-wrap items-center gap-2.5">
       <div className="mr-2.5 flex flex-col gap-[3px]">
@@ -27,13 +32,10 @@ export function AdminHeader({
       <Link href="/admin/pipeline" className={tab(active === "pipeline")}>
         Pipeline
       </Link>
-      <Link href={`/admin/desk/${clientSlug}`} className={tab(active === "desk")}>
+      <Link href={deskHref} className={tab(active === "desk")}>
         Review desk
       </Link>
-      <Link
-        href={`/admin/settings/${clientSlug}`}
-        className={tab(active === "settings")}
-      >
+      <Link href={settingsHref} className={tab(active === "settings")}>
         Client settings
       </Link>
       <AddClientButton />

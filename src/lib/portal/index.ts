@@ -208,7 +208,7 @@ export async function getUploadsView(clientSlug: string): Promise<UploadsView> {
   if (session.realRole !== "internal") return { kind: "redirect", to: "/" };
   const client =
     session.clients.find((c) => c.slug === clientSlug) ?? session.clients[0];
-  if (!client) return { kind: "redirect", to: "/admin" };
+  if (!client) return { kind: "redirect", to: "/admin/pipeline" };
   const uploads = fixturesEnabled()
     ? (await import("./fixture-provider")).fixtureUploads(client.slug)
     : await loadUploads(client.id);
@@ -269,7 +269,8 @@ export async function getAdminMonthView(
   if (session.realRole !== "internal") return { kind: "redirect", to: "/" };
   const client =
     session.clients.find((c) => c.slug === clientSlug) ?? session.clients[0];
-  if (!client) return { kind: "redirect", to: "/admin" };
+  // pipeline renders its own zero-clients empty state — safe redirect target
+  if (!client) return { kind: "redirect", to: "/admin/pipeline" };
   const months = await getMonths(client.id, client.slug);
   // default to the latest reported month (prototype: desk edits the effective
   // month), falling back to the newest shell for brand-new clients

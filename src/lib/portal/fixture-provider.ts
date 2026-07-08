@@ -191,7 +191,8 @@ export function fixtureUpdatePlan(
 export function fixtureDeletePlan(clientSlug: string, monthKey: string): boolean {
   const c = clients.find((x) => x.id === clientSlug);
   const m = c?.months[monthKey];
-  if (!c || !m || m.metrics != null) return false; // only Planned shells
+  // mirror the supabase guard exactly: Planned status AND no report data
+  if (!c || !m || m.status !== "Planned" || m.metrics != null) return false;
   delete c.months[monthKey];
   return true;
 }

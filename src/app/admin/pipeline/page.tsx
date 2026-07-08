@@ -1,22 +1,44 @@
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getInternalClients, getAdminMonthView } from "@/lib/portal";
+import { getClientMonths, getInternalClients } from "@/lib/portal";
 import { fmtUpdated, money } from "@/lib/format";
 import { StatusChip } from "@/components/chips";
 import { AdminHeader } from "@/components/admin/admin-header";
+import { AddClientButton } from "@/components/admin/add-client-button";
 import { DeleteClientButton } from "@/components/admin/pipeline-actions";
 
 export default async function PipelinePage() {
   const clients = await getInternalClients();
   if (!clients) redirect("/");
-  if (clients.length === 0) redirect("/admin/settings/none");
 
-  // each client's newest month drives its pipeline row
+  // zero clients (fresh environment): render a recoverable empty state —
+  // redirecting anywhere would loop, since every admin page needs a client
+  if (clients.length === 0) {
+    return (
+      <>
+        <AdminHeader active="pipeline" clientSlug="" />
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-line bg-white px-6 py-12 text-center">
+          <div className="font-heading text-[15.5px] font-semibold text-ink">
+            No clients yet
+          </div>
+          <div className="max-w-md text-[13.5px] leading-relaxed text-muted">
+            Create the first client to start the pipeline, or run the seed
+            script (<span className="font-mono">npx tsx scripts/seed.ts</span>)
+            to load the demo dataset.
+          </div>
+          <AddClientButton />
+        </div>
+      </>
+    );
+  }
+
+  // month summaries only — the pipeline never needs the full report jsonb
   const rows = await Promise.all(
     clients.map(async (c) => {
-      const view = await getAdminMonthView(c.slug);
-      const month = view.kind === "view" ? view.month : null;
+      const view = await getClientMonths(c.slug);
+      const months = view.kind === "months" ? view.months : [];
+      const month = months.find((m) => m.has_report) ?? months[0] ?? null;
       return { client: c, month };
     }),
   );

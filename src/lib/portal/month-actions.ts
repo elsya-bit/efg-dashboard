@@ -91,12 +91,14 @@ export async function updatePlan(
     const patch: Record<string, number> = {};
     if (budget != null) patch.budget = budget;
     if (targetCpl != null) patch.target_cpl = targetCpl;
-    const { error } = await gate.supabase
+    const { data: updated, error } = await gate.supabase
       .from("months")
       .update(patch)
       .eq("client_id", clientId)
-      .eq("month", `${monthKey}-01`);
+      .eq("month", `${monthKey}-01`)
+      .select("id");
     if (error) return { ok: false, error: error.message };
+    if (!updated?.length) return { ok: false, error: "Month not found." };
   }
   revalidatePath(`/${clientSlug}`, "layout");
   return { ok: true, message: "Plan updated." };
@@ -119,14 +121,18 @@ export async function deletePlan(
     const clientId = await clientIdBySlug(gate.supabase, clientSlug);
     if (!clientId) return { ok: false, error: "Unknown client." };
     // guard: only Planned month shells (no report) are deletable
-    const { error } = await gate.supabase
+    const { data: deleted, error } = await gate.supabase
       .from("months")
       .delete()
       .eq("client_id", clientId)
       .eq("month", `${monthKey}-01`)
       .eq("status", "Planned")
-      .is("report", null);
+      .is("report", null)
+      .select("id");
     if (error) return { ok: false, error: error.message };
+    if (!deleted?.length) {
+      return { ok: false, error: "Only planned months can be deleted." };
+    }
   }
   revalidatePath(`/${clientSlug}`, "layout");
   return { ok: true, message: `${label} plan removed.` };
