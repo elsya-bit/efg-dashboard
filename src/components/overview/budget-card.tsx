@@ -41,7 +41,7 @@ export function BudgetCard({
           {pacing.paceLabel}
         </Chip>
       </div>
-      <div className="relative mt-4 h-5 rounded-[10px] border border-line bg-soft">
+      <div className="relative h-5 rounded-[10px] border border-line bg-soft">
         <div
           className="absolute bottom-0 left-0 top-0 rounded-[10px] bg-primary"
           style={{ width: pacing.spendPct }}

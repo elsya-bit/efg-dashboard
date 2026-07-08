@@ -58,9 +58,8 @@ export function AttentionWorking({
   );
 }
 
-/** "What changed since the last update" card. */
+/** "What changed since the last update" card (renders header-only when empty, per prototype). */
 export function ChangedCard({ changed }: { changed: ReportChanged[] }) {
-  if (changed.length === 0) return null;
   return (
     <div className="flex flex-col gap-1 rounded-2xl border border-line bg-white p-5 shadow-[0_1px_2px_rgba(22,46,39,.05)]">
       <div className="mb-2 font-heading text-[15.5px] font-semibold">
@@ -93,7 +92,6 @@ export function NotesCard({
   internalView: boolean;
 }) {
   const visible = notes.filter((n) => internalView || n.visible);
-  if (visible.length === 0) return null;
   return (
     <div className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-5 shadow-[0_1px_2px_rgba(22,46,39,.05)]">
       <div className="font-heading text-[15.5px] font-semibold">

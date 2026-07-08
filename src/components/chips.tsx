@@ -8,10 +8,11 @@ const CHIP_BASE =
   "inline-block whitespace-nowrap rounded-full border px-2.5 py-[3px] font-heading text-[11px] font-semibold tracking-[.03em]";
 
 const STATUS_STYLES: Record<string, string> = {
-  // Published / Current / Complete share the solid style
+  // prototype statusStyle(): Published & Current are the solid chips; A/B test
+  // statuses (Complete/In progress) have their OWN mapping on that screen —
+  // anything unknown falls through to the white/muted default, as there.
   Published: "border-primary bg-primary text-white",
   Current: "border-primary bg-primary text-white",
-  Complete: "border-primary bg-primary text-white",
   Approved: "border-line bg-soft text-primary",
   Planned: "border-line bg-page text-accent",
   Archived: "border-line bg-page text-muted",
