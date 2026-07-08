@@ -24,11 +24,17 @@ is the product spec (screens, business rules, design tokens). The prototype
 3. Apply the database schema (pick one):
    - `npx supabase link --project-ref <your-project-ref>` then
      `npx supabase db push`
-   - or paste `supabase/migrations/20260707000001_init.sql` into the
-     dashboard SQL editor and run it.
-4. Seed the demo dataset (3 clients, months, uploads → Storage):
+   - or paste each file in `supabase/migrations/` into the dashboard SQL
+     editor, in filename order, and run them.
+4. Deploy the ingestion Edge Function (needed for "Add report"):
+   `npx supabase functions deploy ingest-report`
+5. Seed the demo dataset (3 clients, months, uploads → Storage):
    `npx tsx scripts/seed.ts` (re-runnable; reseeds from scratch).
-5. `npm run dev`
+6. `npm run dev`
+
+`npm run test:ingest` runs the ingestion parsers against the three sample
+exports in `handoff/uploads/` and asserts they reproduce the handoff's
+stored summaries exactly.
 
 ### Developing without a database
 

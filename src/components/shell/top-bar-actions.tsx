@@ -5,19 +5,6 @@ import { useToast } from "@/components/toast";
 import { setViewAsClient } from "@/lib/portal/view-as-action";
 import { BTN_BACK_INTERNAL, BTN_SECONDARY, BTN_VIEW_AS } from "@/components/ui";
 
-export function AddReportButton() {
-  const showToast = useToast();
-  return (
-    <button
-      type="button"
-      className={BTN_SECONDARY}
-      onClick={() => showToast("Report uploads arrive in Phase 4.")}
-    >
-      Add report
-    </button>
-  );
-}
-
 export function ExportPdfButton() {
   return (
     <button type="button" className={BTN_SECONDARY} onClick={() => window.print()}>

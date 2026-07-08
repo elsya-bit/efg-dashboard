@@ -4,12 +4,19 @@ import {
   loadMonths,
   loadReport,
   loadSession,
+  loadUploads,
   type ProviderSession,
 } from "./supabase-provider";
 import { fixturesEnabled } from "./fixtures-flag";
 import { resolveEffectiveMonth, visibleMonths } from "./resolve";
 import type { MonthReport } from "./report-types";
-import type { PortalMonth, PortalRole, PortalShell } from "./types";
+import type {
+  PortalClient,
+  PortalMonth,
+  PortalRole,
+  PortalShell,
+  UploadRowDb,
+} from "./types";
 
 export const VIEW_AS_COOKIE = "efg-view";
 
@@ -181,6 +188,39 @@ export const getScreenData = cache(async function getScreenData(
     report: (raw ?? {}) as MonthReport,
   };
 });
+
+export type UploadsView =
+  | {
+      kind: "view";
+      client: PortalClient;
+      clients: PortalClient[];
+      uploads: UploadRowDb[];
+    }
+  | { kind: "redirect"; to: string };
+
+/**
+ * Uploads manager data — internal staff only (clients must never see the
+ * upload pipeline; RLS enforces the same server-side).
+ */
+export async function getUploadsView(clientSlug: string): Promise<UploadsView> {
+  const session = await getSession();
+  if (!session) return { kind: "redirect", to: "/login" };
+  if (session.realRole !== "internal") return { kind: "redirect", to: "/" };
+  const client =
+    session.clients.find((c) => c.slug === clientSlug) ?? session.clients[0];
+  if (!client) return { kind: "redirect", to: "/admin" };
+  const uploads = fixturesEnabled()
+    ? (await import("./fixture-provider")).fixtureUploads(client.slug)
+    : await loadUploads(client.id);
+  return { kind: "view", client, clients: session.clients, uploads };
+}
+
+/** All clients, for internal-only admin surfaces. Null unless internal. */
+export async function getInternalClients(): Promise<PortalClient[] | null> {
+  const session = await getSession();
+  if (!session || session.realRole !== "internal") return null;
+  return session.clients;
+}
 
 export type PortalSession = {
   userEmail: string;

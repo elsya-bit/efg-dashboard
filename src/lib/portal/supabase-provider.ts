@@ -1,6 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { monthName, toMonthKey } from "@/lib/format";
-import type { MonthStatus, PortalClient, PortalMonth, PortalRole } from "./types";
+import type {
+  MonthStatus,
+  PortalClient,
+  PortalMonth,
+  PortalRole,
+  UploadRowDb,
+} from "./types";
 
 type ClientRowDb = {
   id: string;
@@ -78,6 +84,29 @@ export async function loadReport(monthId: string): Promise<unknown> {
     throw new Error(`Failed to load report: ${error.message}`);
   }
   return data?.report ?? null;
+}
+
+/** report_uploads rows (RLS: internal only), newest first. */
+export async function loadUploads(clientId: string): Promise<UploadRowDb[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("report_uploads")
+    .select(
+      "id, type, as_of, version, status, file_path, summary, prev_summary, uploaded_at",
+    )
+    .eq("client_id", clientId)
+    .order("uploaded_at", { ascending: false })
+    .order("version", { ascending: false });
+  if (error) {
+    throw new Error(`Failed to load uploads: ${error.message}`);
+  }
+  return (data ?? []).map((u) => ({
+    ...u,
+    // 'slug/type/v2-Some File.json' → 'Some File.json'
+    file_name: u.file_path
+      ? String(u.file_path).split("/").pop()!.replace(/^v\d+-/, "")
+      : null,
+  })) as UploadRowDb[];
 }
 
 type MonthRowDb = {

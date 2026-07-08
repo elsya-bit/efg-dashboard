@@ -5,12 +5,19 @@ import type { PortalShell } from "@/lib/portal/types";
 import { Wordmark } from "./wordmark";
 import { ClientSwitcher, MonthSwitcher } from "./switchers";
 import {
-  AddReportButton,
   BackToInternalButton,
   ExportPdfButton,
   ViewAsClientButton,
 } from "./top-bar-actions";
+import { AddReport, type SampleFile } from "@/components/ingest/add-report";
+import { fixturesEnabled } from "@/lib/portal/fixtures-flag";
 import { BTN_SECONDARY, InternalBadge, SignOutButton } from "@/components/ui";
+
+const FIXTURE_SAMPLES: SampleFile[] = [
+  { label: "Meta Dashboard · 5 Jul", path: "/fixtures/samples/Capital_Transport_Meta_Ads_Dashboard_July2026_MTD_2026-07-05.json" },
+  { label: "Daily Tracker · 6 Jul", path: "/fixtures/samples/Capital_Transport_Daily_Budget_Tracker_July2026_2026-07-06.json" },
+  { label: "A/B Testing · 6 Jul", path: "/fixtures/samples/CT A-B Testing Log to 6 Jul 2026.json" },
+];
 
 export function TopBar({ shell }: { shell: PortalShell }) {
   const { client, month, months, clients } = shell;
@@ -61,7 +68,13 @@ export function TopBar({ shell }: { shell: PortalShell }) {
         </span>
       )}
       <div className="flex-1" />
-      {internalView && <AddReportButton />}
+      {internalView && (
+        <AddReport
+          clientId={client.id}
+          clientSlug={client.slug}
+          samples={fixturesEnabled() ? FIXTURE_SAMPLES : null}
+        />
+      )}
       <ExportPdfButton />
       {internalView && (
         <>

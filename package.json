@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:ingest": "tsx scripts/test-ingest.ts"
   },
   "dependencies": {
     "@fontsource/lato": "^5.2.7",

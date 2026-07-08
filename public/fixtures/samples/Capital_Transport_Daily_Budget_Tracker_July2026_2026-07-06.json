@@ -1,0 +1,99 @@
+{
+  "month": "July 2026",
+  "monthly_budget": 25575,
+  "as_of_date": "2026-07-06",
+  "reporting_period": {
+    "start": "2026-07-01",
+    "end": "2026-07-06"
+  },
+  "generated_at": "2026-07-07T06:05:30+10:00",
+  "meta_ad_account_id": "act_100226773993553",
+  "currency": "AUD",
+  "account_timezone": "Australia/Sydney",
+  "daily_tracker": [
+    {
+      "date": 1,
+      "full_date": "2026-07-01",
+      "vic": 131.28,
+      "nsw": 297.49,
+      "qld": 244.58,
+      "sa": 121.56,
+      "wa": 45.1,
+      "boost_spike": 29.27,
+      "test": 85.93,
+      "daily_total": 955.21,
+      "mtd_total": 955.21,
+      "budget_remaining": 24619.79
+    },
+    {
+      "date": 2,
+      "full_date": "2026-07-02",
+      "vic": 73.75,
+      "nsw": 361.95,
+      "qld": 145.7,
+      "sa": 104.45,
+      "wa": 47.01,
+      "boost_spike": 146.56,
+      "test": 69.58,
+      "daily_total": 949.0,
+      "mtd_total": 1904.21,
+      "budget_remaining": 23670.79
+    },
+    {
+      "date": 3,
+      "full_date": "2026-07-03",
+      "vic": 66.23,
+      "nsw": 331.22,
+      "qld": 134.66,
+      "sa": 83.2,
+      "wa": 52.28,
+      "boost_spike": 158.38,
+      "test": 60.29,
+      "daily_total": 886.26,
+      "mtd_total": 2790.47,
+      "budget_remaining": 22784.53
+    },
+    {
+      "date": 4,
+      "full_date": "2026-07-04",
+      "vic": 68.33,
+      "nsw": 309.5,
+      "qld": 130.48,
+      "sa": 93.26,
+      "wa": 44.74,
+      "boost_spike": 136.05,
+      "test": 56.23,
+      "daily_total": 838.59,
+      "mtd_total": 3629.06,
+      "budget_remaining": 21945.94
+    },
+    {
+      "date": 5,
+      "full_date": "2026-07-05",
+      "vic": 86.57,
+      "nsw": 345.36,
+      "qld": 159.28,
+      "sa": 108.47,
+      "wa": 55.6,
+      "boost_spike": 192.4,
+      "test": 75.37,
+      "daily_total": 1023.05,
+      "mtd_total": 4652.11,
+      "budget_remaining": 20922.89
+    },
+    {
+      "date": 6,
+      "full_date": "2026-07-06",
+      "vic": 80.08,
+      "nsw": 273.87,
+      "qld": 170.87,
+      "sa": 114.67,
+      "wa": 55.29,
+      "boost_spike": 171.13,
+      "test": 73.4,
+      "daily_total": 939.31,
+      "mtd_total": 5591.42,
+      "budget_remaining": 19983.58
+    }
+  ]
+}

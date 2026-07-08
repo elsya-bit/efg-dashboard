@@ -79,6 +79,17 @@ export function fmtIso(iso: string | null | undefined): string {
   return `${parseInt(p[2], 10)} ${SHORT_MONTHS[parseInt(p[1], 10) - 1]} ${p[0]}`;
 }
 
+/** '6 Jul 2026' → '2026-07-06'. Returns null when the string doesn't match. */
+export function parseAuDate(s: string): string | null {
+  const m = /^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})$/.exec(s.trim());
+  if (!m) return null;
+  const monthIdx = SHORT_MONTHS.findIndex(
+    (x) => x.toLowerCase() === m[2].toLowerCase(),
+  );
+  if (monthIdx < 0) return null;
+  return `${m[3]}-${String(monthIdx + 1).padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+}
+
 /** Real UTC offset (minutes) of Australia/Sydney at a given instant (DST-aware). */
 function sydneyOffsetMinutes(at: Date): number {
   const part = new Intl.DateTimeFormat("en-US", {

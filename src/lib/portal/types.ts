@@ -34,6 +34,22 @@ export type PortalMonth = {
 
 export type PortalRole = "internal" | "client";
 
+/** report_uploads row as both providers expose it. */
+export type UploadRowDb = {
+  id: string;
+  type: "meta_dashboard" | "daily_tracker" | "ab_testing";
+  /** ISO date the data runs to. */
+  as_of: string;
+  version: number;
+  status: "Current" | "Archived";
+  file_path: string | null;
+  /** Original filename (fixture rows carry it directly; DB rows derive from file_path). */
+  file_name: string | null;
+  summary: Record<string, number>;
+  prev_summary: Record<string, number> | null;
+  uploaded_at: string;
+};
+
 export type PortalShell = {
   userEmail: string;
   /** The signed-in user's real role. */
