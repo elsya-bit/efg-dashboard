@@ -1,14 +1,15 @@
 import { redirect } from "next/navigation";
-import { getUserContext } from "@/lib/auth";
+import { getPortalSession } from "@/lib/portal";
+import { SignOutButton } from "@/components/ui";
 
 export default async function NoAccessPage() {
-  const ctx = await getUserContext();
+  const session = await getPortalSession();
 
-  if (!ctx) {
+  if (!session) {
     redirect("/login");
   }
 
-  if (ctx.isInternal || ctx.clients.length > 0) {
+  if (session.realRole === "internal" || session.clientCount > 0) {
     redirect("/");
   }
 
@@ -22,14 +23,7 @@ export default async function NoAccessPage() {
           Your EFG contact needs to connect your account to your dashboard.
           Email contact@efgconsulting.com.au and we will sort it out.
         </p>
-        <form action="/auth/signout" method="post">
-          <button
-            type="submit"
-            className="font-heading font-semibold text-[12.5px] px-3.5 py-2 rounded-[10px] border border-line bg-white text-primary"
-          >
-            Sign out
-          </button>
-        </form>
+        <SignOutButton />
       </div>
     </main>
   );

@@ -20,3 +20,13 @@ export async function setViewAsClient(
   // the overview and let the effective-month rules re-resolve.
   redirect(`/${clientSlug}/${monthKey}/overview`);
 }
+
+/**
+ * Escape hatch from the no-reports dead end: previewing a client with no
+ * published months renders a shell-less page, so this clears the view-as
+ * cookie and re-lands wherever the internal role resolves to.
+ */
+export async function exitClientView() {
+  (await cookies()).delete(VIEW_AS_COOKIE);
+  redirect("/");
+}

@@ -10,9 +10,7 @@ import {
   ExportPdfButton,
   ViewAsClientButton,
 } from "./top-bar-actions";
-
-const buttonClass =
-  "rounded-[10px] border border-line bg-white px-[13px] py-2 font-heading text-[12.5px] font-semibold text-primary";
+import { BTN_SECONDARY, InternalBadge, SignOutButton } from "@/components/ui";
 
 export function TopBar({ shell }: { shell: PortalShell }) {
   const { client, month, months, clients } = shell;
@@ -21,11 +19,7 @@ export function TopBar({ shell }: { shell: PortalShell }) {
   return (
     <div className="np sticky top-0 z-50 flex h-[62px] items-center gap-[14px] border-b border-line bg-white px-5 max-[960px]:h-auto max-[960px]:flex-wrap max-[960px]:gap-2 max-[960px]:px-3.5 max-[960px]:py-2.5">
       <Wordmark />
-      {internalView && (
-        <span className="rounded-full border border-line bg-soft px-2.5 py-[3px] font-heading text-[11px] font-semibold tracking-[.04em] text-primary">
-          Internal
-        </span>
-      )}
+      {internalView && <InternalBadge />}
       <div className="h-[26px] w-px bg-line" />
       {internalView ? (
         <ClientSwitcher clients={clients} activeSlug={client.slug} />
@@ -61,15 +55,17 @@ export function TopBar({ shell }: { shell: PortalShell }) {
         clientSlug={client.slug}
         showStatus={internalView}
       />
-      <span className="whitespace-nowrap text-xs text-muted">
-        Updated {fmtUpdated(month.updated_at)}
-      </span>
+      {month.updated_at && (
+        <span className="whitespace-nowrap text-xs text-muted">
+          Updated {fmtUpdated(month.updated_at)}
+        </span>
+      )}
       <div className="flex-1" />
       {internalView && <AddReportButton />}
       <ExportPdfButton />
       {internalView && (
         <>
-          <Link href="/admin" className={buttonClass}>
+          <Link href="/admin" className={BTN_SECONDARY}>
             Admin
           </Link>
           <ViewAsClientButton
@@ -82,13 +78,7 @@ export function TopBar({ shell }: { shell: PortalShell }) {
       {shell.viewAsClient && (
         <BackToInternalButton clientSlug={client.slug} monthKey={month.key} />
       )}
-      {!shell.viewAsClient && (
-        <form action="/auth/signout" method="post">
-          <button type="submit" className={buttonClass}>
-            Sign out
-          </button>
-        </form>
-      )}
+      {!shell.viewAsClient && <SignOutButton />}
     </div>
   );
 }

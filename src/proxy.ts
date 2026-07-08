@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { fixturesEnabled } from "@/lib/portal/fixtures-flag";
 
 /**
  * Request-time guard (Next 16 `proxy` convention — the renamed, non-deprecated
@@ -8,11 +9,9 @@ import { NextResponse, type NextRequest } from "next/server";
  */
 export async function proxy(request: NextRequest) {
   // Dev-only fixture mode renders the UI from the design-handoff dataset
-  // without Supabase; auth is bypassed. Never active in production builds.
-  if (
-    process.env.EFG_DEV_FIXTURES === "1" &&
-    process.env.NODE_ENV !== "production"
-  ) {
+  // without Supabase; auth is bypassed. Same guard as the data layer
+  // (single source in fixtures-flag.ts), active only under `next dev`.
+  if (fixturesEnabled()) {
     return NextResponse.next({ request });
   }
 

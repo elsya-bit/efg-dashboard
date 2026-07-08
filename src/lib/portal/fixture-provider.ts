@@ -1,4 +1,4 @@
-import { monthName } from "@/lib/format";
+import { monthName, parseAuTimestamp } from "@/lib/format";
 import type { MonthStatus, PortalClient, PortalMonth } from "./types";
 import type { ProviderSession } from "./supabase-provider";
 
@@ -43,16 +43,9 @@ type HandoffMonth = {
 const clients: HandoffClient[] = (DB as unknown as { clients: HandoffClient[] })
   .clients;
 
-/** '5 Jul 2026, 9:12am' (Australia/Sydney, +10 in July) → ISO string. */
+/** Handoff 'updated' strings via the shared DST-aware Sydney parser. */
 function parseUpdated(text: string | undefined): string | null {
-  if (!text) return null;
-  const m = text.match(/^(\d{1,2}) (\w{3}) (\d{4}), (\d{1,2}):(\d{2})(am|pm)$/);
-  if (!m) return null;
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  let hour = parseInt(m[4], 10) % 12;
-  if (m[6] === "pm") hour += 12;
-  const mm = String(months.indexOf(m[2]) + 1).padStart(2, "0");
-  return `${m[3]}-${mm}-${m[1].padStart(2, "0")}T${String(hour).padStart(2, "0")}:${m[5]}:00+10:00`;
+  return text ? parseAuTimestamp(text) : null;
 }
 
 export function fixtureSession(): ProviderSession {
@@ -73,7 +66,8 @@ export function fixtureSession(): ProviderSession {
           contact: c.contact ?? null,
           contact_role: c.contact_role ?? null,
           accent_colour: c.colour,
-          logo_url: c.logo ? "/fixtures/capital-transport-logo.png" : null,
+          // handoff logo assets are mirrored into public/fixtures/ by filename
+          logo_url: c.logo ? `/fixtures/${c.logo.split("/").pop()}` : null,
           currency: c.currency,
         }),
       ),

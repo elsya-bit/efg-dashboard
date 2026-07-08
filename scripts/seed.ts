@@ -18,6 +18,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
+import { parseAuTimestamp } from '../src/lib/format';
 import { DB } from '../handoff/report-data.js';
 
 dotenv.config({ path: '.env.local' });
@@ -79,10 +80,6 @@ const MONTH_NUM: Record<string, string> = {
   jul: '07', aug: '08', sep: '09', oct: '10', nov: '11', dec: '12',
 };
 
-// All human-readable timestamps in the dataset fall in May–July, when
-// Australia/Sydney is on AEST (UTC+10:00, no daylight saving).
-const SYDNEY_OFFSET = '+10:00';
-
 function bail(context: string, error: unknown): never {
   console.error(`\n[seed] FAILED — ${context}`);
   console.error(error);
@@ -97,17 +94,11 @@ function toIsoDate(s: string): string {
   return `${m[3]}-${mon}-${m[1].padStart(2, '0')}`;
 }
 
-/** '5 Jul 2026, 9:12am' (Australia/Sydney, +10:00) -> UTC ISO timestamp */
+/** '5 Jul 2026, 9:12am' (Australia/Sydney, DST-aware) -> UTC ISO timestamp */
 function toIsoTimestamp(s: string): string {
-  const m = /^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4}),\s*(\d{1,2}):(\d{2})\s*(am|pm)$/i.exec(s.trim());
-  const mon = m && MONTH_NUM[m[2].toLowerCase()];
-  if (!m || !mon) bail(`cannot parse timestamp string "${s}"`, new Error('unrecognised timestamp format'));
-  let hour = parseInt(m[4], 10) % 12;
-  if (m[6].toLowerCase() === 'pm') hour += 12;
-  const local = `${m[3]}-${mon}-${m[1].padStart(2, '0')}T${String(hour).padStart(2, '0')}:${m[5]}:00${SYDNEY_OFFSET}`;
-  const date = new Date(local);
-  if (Number.isNaN(date.getTime())) bail(`invalid timestamp "${s}" -> "${local}"`, new Error('invalid date'));
-  return date.toISOString();
+  const iso = parseAuTimestamp(s);
+  if (!iso) bail(`cannot parse timestamp string "${s}"`, new Error('unrecognised timestamp format'));
+  return iso;
 }
 
 /**

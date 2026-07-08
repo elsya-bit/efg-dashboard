@@ -3,16 +3,14 @@
 import { useTransition } from "react";
 import { useToast } from "@/components/toast";
 import { setViewAsClient } from "@/lib/portal/view-as-action";
-
-const buttonClass =
-  "rounded-[10px] border border-line bg-white px-[13px] py-2 font-heading text-[12.5px] font-semibold text-primary";
+import { BTN_BACK_INTERNAL, BTN_SECONDARY, BTN_VIEW_AS } from "@/components/ui";
 
 export function AddReportButton() {
   const showToast = useToast();
   return (
     <button
       type="button"
-      className={buttonClass}
+      className={BTN_SECONDARY}
       onClick={() => showToast("Report uploads arrive in Phase 4.")}
     >
       Add report
@@ -22,7 +20,7 @@ export function AddReportButton() {
 
 export function ExportPdfButton() {
   return (
-    <button type="button" className={buttonClass} onClick={() => window.print()}>
+    <button type="button" className={BTN_SECONDARY} onClick={() => window.print()}>
       Export PDF
     </button>
   );
@@ -42,7 +40,7 @@ export function ViewAsClientButton({
   return (
     <button
       type="button"
-      className="rounded-[10px] border border-primary bg-white px-[13px] py-2 font-heading text-[12.5px] font-semibold text-primary"
+      className={BTN_VIEW_AS}
       onClick={() => {
         showToast(`Viewing as ${clientName}. Internal details are hidden.`);
         startTransition(() => setViewAsClient(true, clientSlug, monthKey));
@@ -64,7 +62,7 @@ export function BackToInternalButton({
   return (
     <button
       type="button"
-      className="rounded-[10px] border border-dashed border-muted bg-soft px-[13px] py-2 font-heading text-[12.5px] font-semibold text-primary"
+      className={BTN_BACK_INTERNAL}
       onClick={() => startTransition(() => setViewAsClient(false, clientSlug, monthKey))}
     >
       Back to internal view

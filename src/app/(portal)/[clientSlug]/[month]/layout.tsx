@@ -1,5 +1,8 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getPortalShell } from "@/lib/portal";
+import { exitClientView } from "@/lib/portal/view-as-action";
+import { BTN_BACK_INTERNAL, BTN_SECONDARY, SignOutButton } from "@/components/ui";
 import { ToastProvider } from "@/components/toast";
 import { TopBar } from "@/components/shell/top-bar";
 import { DraftBanner } from "@/components/shell/draft-banner";
@@ -22,19 +25,28 @@ export default async function PortalLayout({
   if (result.kind === "no-reports") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-page p-6">
-        <div className="flex max-w-md flex-col gap-3 rounded-2xl border border-line bg-white p-6 text-center">
+        <div className="flex max-w-md flex-col items-center gap-3 rounded-2xl border border-line bg-white p-6 text-center">
           <div className="font-heading text-[17px] font-semibold text-ink">
             No report to show yet
           </div>
           <p className="text-[13.5px] leading-relaxed text-muted">{result.reason}</p>
-          <form action="/auth/signout" method="post">
-            <button
-              type="submit"
-              className="rounded-[10px] border border-line bg-white px-3.5 py-2 font-heading text-[12.5px] font-semibold text-primary"
-            >
-              Sign out
-            </button>
-          </form>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {result.viewAsClient && (
+              // Escape hatch: without it the persisted view-as cookie would
+              // trap internal users on this screen.
+              <form action={exitClientView}>
+                <button type="submit" className={BTN_BACK_INTERNAL}>
+                  Back to internal view
+                </button>
+              </form>
+            )}
+            {result.realRole === "internal" && !result.viewAsClient && (
+              <Link href="/" className={BTN_SECONDARY}>
+                Back to the portal
+              </Link>
+            )}
+            <SignOutButton />
+          </div>
         </div>
       </div>
     );

@@ -12,10 +12,16 @@ export default async function OverviewPage({
   const result = await getPortalShell(clientSlug, month);
   if (result.kind !== "shell") return null; // layout handles redirects
   const { client, month: m } = result.shell;
-  const meta = `${client.industry} · ${client.objective} · Managed by ${client.manager}`;
+  const meta = [
+    client.industry,
+    client.objective,
+    client.manager ? `Managed by ${client.manager}` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
-    <div className="flex flex-col gap-[18px]">
+    <>
       <div className="flex flex-wrap items-center gap-3.5">
         {client.logo_url ? (
           <>
@@ -55,6 +61,6 @@ export default async function OverviewPage({
         </div>
       </div>
       <PlaceholderCard phase={3} />
-    </div>
+    </>
   );
 }
