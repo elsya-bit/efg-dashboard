@@ -1,7 +1,23 @@
 import Image from "next/image";
-import { getPortalShell } from "@/lib/portal";
-import { StatusChip } from "@/components/chips";
-import { PlaceholderCard } from "@/components/shell/placeholder-screen";
+import { getScreenData } from "@/lib/portal";
+import {
+  deriveBestWorst,
+  deriveCplChart,
+  deriveMetricCards,
+  derivePacing,
+  deriveTracker,
+} from "@/lib/portal/derive";
+import { HealthChip, StatusChip } from "@/components/chips";
+import { HeroCard } from "@/components/overview/hero";
+import { MetricCards } from "@/components/overview/metric-cards";
+import { BudgetCard } from "@/components/overview/budget-card";
+import { CplCard } from "@/components/overview/cpl-card";
+import { DailyBudgetCard } from "@/components/overview/daily-budget-card";
+import {
+  AttentionWorking,
+  ChangedCard,
+  NotesCard,
+} from "@/components/overview/lists";
 
 export default async function OverviewPage({
   params,
@@ -9,9 +25,13 @@ export default async function OverviewPage({
   params: Promise<{ clientSlug: string; month: string }>;
 }) {
   const { clientSlug, month } = await params;
-  const result = await getPortalShell(clientSlug, month);
+  const result = await getScreenData(clientSlug, month);
   if (result.kind !== "shell") return null; // layout handles redirects
-  const { client, month: m } = result.shell;
+  const { shell, report } = result;
+  const { client, month: m } = shell;
+  const base = `/${client.slug}/${m.key}`;
+  const internalView = shell.effectiveRole === "internal";
+
   const meta = [
     client.industry,
     client.objective,
@@ -20,8 +40,17 @@ export default async function OverviewPage({
     .filter(Boolean)
     .join(" · ");
 
+  const pacing = derivePacing(m, report);
+  const cards = report.metrics
+    ? deriveMetricCards(m, report, pacing, base)
+    : [];
+  const chart = deriveCplChart(m, report);
+  const { best, worst } = deriveBestWorst(report);
+  const tracker = deriveTracker(m, report);
+
   return (
     <>
+      {/* client identity row */}
       <div className="flex flex-wrap items-center gap-3.5">
         {client.logo_url ? (
           <>
@@ -57,10 +86,40 @@ export default async function OverviewPage({
         )}
         <div className="flex-1" />
         <div className="flex flex-wrap items-center gap-2">
+          {report.summary && <HealthChip health={report.summary.health} />}
           <StatusChip status={m.status} />
         </div>
       </div>
-      <PlaceholderCard phase={3} />
+
+      {report.summary && (
+        <HeroCard monthLabel={m.label} summary={report.summary} base={base} />
+      )}
+
+      {cards.length > 0 && <MetricCards cards={cards} />}
+
+      {report.metrics && (
+        <div className="flex items-stretch gap-[18px] max-[960px]:flex-col">
+          <BudgetCard pacing={pacing} metrics={report.metrics} base={base} />
+          <CplCard
+            cpl={report.metrics.cpl}
+            target={m.target_cpl ?? 0}
+            chart={chart}
+            best={best}
+            worst={worst}
+          />
+        </div>
+      )}
+
+      {tracker.hasTracker && <DailyBudgetCard tracker={tracker} base={base} />}
+
+      <AttentionWorking
+        attention={report.attention ?? []}
+        working={report.working ?? []}
+      />
+
+      <ChangedCard changed={report.changed ?? []} />
+
+      <NotesCard notes={report.notes ?? []} internalView={internalView} />
     </>
   );
 }

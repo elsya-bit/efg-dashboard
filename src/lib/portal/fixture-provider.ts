@@ -1,4 +1,5 @@
 import { monthName, parseAuTimestamp } from "@/lib/format";
+import { REPORT_KEYS } from "./report-types";
 import type { MonthStatus, PortalClient, PortalMonth } from "./types";
 import type { ProviderSession } from "./supabase-provider";
 
@@ -72,6 +73,18 @@ export function fixtureSession(): ProviderSession {
         }),
       ),
   };
+}
+
+/** The report payload for one fixture month, shaped like months.report jsonb. */
+export function fixtureReport(clientSlug: string, monthKey: string): unknown {
+  const c = clients.find((x) => x.id === clientSlug);
+  const m = c?.months[monthKey] as Record<string, unknown> | undefined;
+  if (!m || m.metrics == null) return null;
+  const report: Record<string, unknown> = {};
+  for (const key of REPORT_KEYS) {
+    if (key in m) report[key] = m[key];
+  }
+  return report;
 }
 
 export function fixtureMonths(clientSlug: string): PortalMonth[] {

@@ -37,3 +37,50 @@ export function Chip({
 }) {
   return <span className={`${CHIP_BASE} ${className}`}>{children}</span>;
 }
+
+/** Named chip visuals used by derived data (metric-card tags etc.). */
+export const CHIP_VARIANTS = {
+  solid: "border-primary bg-primary text-white",
+  soft: "border-line bg-soft text-primary",
+  watch: "border-muted bg-white text-muted",
+  danger: "border-danger bg-white text-danger",
+  faint: "border-line bg-page text-muted",
+} as const;
+
+export type ChipVariant = keyof typeof CHIP_VARIANTS;
+
+export function VariantChip({
+  variant,
+  children,
+}: {
+  variant: ChipVariant;
+  children: ReactNode;
+}) {
+  return <Chip className={CHIP_VARIANTS[variant]}>{children}</Chip>;
+}
+
+/** Prototype healthStyle(): report summary health chip. */
+export function HealthChip({ health }: { health: string }) {
+  const variant: ChipVariant =
+    health === "Strong"
+      ? "solid"
+      : health === "On Track"
+        ? "soft"
+        : health === "Watch"
+          ? "watch"
+          : health === "Needs Attention" || health === "Needs attention"
+            ? "danger"
+            : "faint";
+  return <VariantChip variant={variant}>{health}</VariantChip>;
+}
+
+/** Prototype prioStyle(): High / Medium / Low priority chip. */
+export function PriorityChip({ priority }: { priority: string }) {
+  const className =
+    priority === "High"
+      ? "border-danger bg-white text-danger"
+      : priority === "Medium"
+        ? "border-line bg-soft text-primary"
+        : "border-line bg-white text-muted";
+  return <Chip className={className}>{priority}</Chip>;
+}

@@ -66,6 +66,20 @@ export async function loadSession(): Promise<ProviderSession | null> {
   return { userEmail: user.email ?? "", realRole, clients };
 }
 
+/** Full report jsonb for one month row (RLS applies). */
+export async function loadReport(monthId: string): Promise<unknown> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("months")
+    .select("report")
+    .eq("id", monthId)
+    .single();
+  if (error) {
+    throw new Error(`Failed to load report: ${error.message}`);
+  }
+  return data?.report ?? null;
+}
+
 type MonthRowDb = {
   id: string;
   month: string;

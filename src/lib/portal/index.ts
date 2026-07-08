@@ -1,8 +1,14 @@
 import { cache } from "react";
 import { cookies } from "next/headers";
-import { loadMonths, loadSession, type ProviderSession } from "./supabase-provider";
+import {
+  loadMonths,
+  loadReport,
+  loadSession,
+  type ProviderSession,
+} from "./supabase-provider";
 import { fixturesEnabled } from "./fixtures-flag";
 import { resolveEffectiveMonth, visibleMonths } from "./resolve";
+import type { MonthReport } from "./report-types";
 import type { PortalMonth, PortalRole, PortalShell } from "./types";
 
 export const VIEW_AS_COOKIE = "efg-view";
@@ -149,6 +155,32 @@ export async function getDefaultRoute(clientSlug?: string): Promise<string> {
   if (session.realRole === "internal" && !gate.viewAsClient) return "/admin";
   return `/${(preferred ?? session.clients[0]).slug}/${NO_REPORTS_KEY}/overview`;
 }
+
+/**
+ * Shell + full month report for a screen render. The report is the months.report
+ * jsonb; clients only ever reach Published months (RLS + effective-month rules).
+ */
+export const getScreenData = cache(async function getScreenData(
+  clientSlug: string,
+  monthKey: string,
+): Promise<
+  | { kind: "shell"; shell: PortalShell; report: MonthReport }
+  | Exclude<ShellResult, { kind: "shell" }>
+> {
+  const result = await getPortalShell(clientSlug, monthKey);
+  if (result.kind !== "shell") return result;
+  const raw = fixturesEnabled()
+    ? (await import("./fixture-provider")).fixtureReport(
+        result.shell.client.slug,
+        result.shell.month.key,
+      )
+    : await loadReport(result.shell.month.id);
+  return {
+    kind: "shell",
+    shell: result.shell,
+    report: (raw ?? {}) as MonthReport,
+  };
+});
 
 export type PortalSession = {
   userEmail: string;
